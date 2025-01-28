@@ -335,29 +335,30 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 		changes = 0;
-		#pragma omp parallel for private(i, j, class, dist, minDist) reduction(+:changes)
-		for(i=0; i<lines; i++){
-			class=1;
-			minDist=FLT_MAX;
-			for(j=0; j<K; j++){
-				dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
+		#pragma omp parallel for private(j, class, dist, minDist)
+		{
+			for(i=0; i<lines; i++){
+				class=1;
+				minDist=FLT_MAX;
+				for(j=0; j<K; j++){
+					dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 
-				if(dist < minDist){
-					minDist=dist;
-					class=j+1;
+					if(dist < minDist){
+						minDist=dist;
+						class=j+1;
+					}
 				}
+				if(classMap[i]!=class){
+					changes++;
+				}
+				classMap[i]=class;
 			}
-			if(classMap[i]!=class){
-				changes++;
-			}
-			classMap[i]=class;
 		}
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
 
-		#pragma omp parallel for private(i, j, class)
 		for(i=0; i<lines; i++) 
 		{
 			class=classMap[i];
@@ -365,7 +366,6 @@ int main(int argc, char* argv[])
 			pointsPerClass[class-1]++;
 
 			for(j=0; j<samples; j++){
-				#pragma omp atomic
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
 		}
