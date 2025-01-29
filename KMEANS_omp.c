@@ -334,10 +334,11 @@ int main(int argc, char* argv[])
 		changes = 0;
 		#pragma omp parallel 
 		{
-			#pragma omp for private(dist, minDist, class)
 			for(i=0; i<lines; i++){
 				class=1;
 				minDist=FLT_MAX;
+				
+				#pragma omp for private(class, minDist)
 				for(j=0; j<K; j++){
 					dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 
