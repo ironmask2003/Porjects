@@ -21,10 +21,7 @@
 #include <time.h>
 #include <string.h>
 #include <float.h>
-
-# ifdef _OPENMP
-# include <omp.h>
-# endif
+#include <omp.h>
 
 #define MAXLINE 2000
 #define MAXCAD 200
@@ -335,8 +332,9 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 		changes = 0;
-		#pragma omp parallel for private(j, class, dist, minDist)
+		#pragma omp parallel 
 		{
+			#pragma omp for private(dist, minDist, class)
 			for(i=0; i<lines; i++){
 				class=1;
 				minDist=FLT_MAX;
