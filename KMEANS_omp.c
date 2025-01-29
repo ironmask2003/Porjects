@@ -360,6 +360,7 @@ int main(int argc, char* argv[])
 		{
 			class=classMap[i];
 			pointsPerClass[class-1]++;
+			#pragma omp parallel for
 			for(j=0; j<samples; j++){
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
@@ -367,6 +368,7 @@ int main(int argc, char* argv[])
 
 		for(i=0; i<K; i++) 
 		{
+			#pragma omp parallel for
 			for(j=0; j<samples; j++){
 				auxCentroids[i*samples+j] /= pointsPerClass[i];
 			}
