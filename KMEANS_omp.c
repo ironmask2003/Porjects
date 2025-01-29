@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
 				class=1;
 				minDist=FLT_MAX;
 
-				#pragma omp for private(class, minDist)
+				#pragma omp for private(minDist)
 				for(j=0; j<K; j++){
 					dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 		{
 			class=classMap[i];
 			pointsPerClass[class-1]++;
-			#pragma omp parallel for private(class)
+			#pragma omp parallel for
 			for(j=0; j<samples; j++){
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
