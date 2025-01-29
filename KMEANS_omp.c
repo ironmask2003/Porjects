@@ -360,15 +360,12 @@ int main(int argc, char* argv[])
 		for(i=0; i<lines; i++) 
 		{
 			class=classMap[i];
-			#pragma omp atomic
 			pointsPerClass[class-1]++;
-
 			for(j=0; j<samples; j++){
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
 		}
 
-		#pragma omp parallel for private(i, j)
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
@@ -377,7 +374,6 @@ int main(int argc, char* argv[])
 		}
 		
 		maxDist=FLT_MIN;
-		#pragma omp parallel for private(i) reduction(max:maxDist)
 		for(i=0; i<K; i++){
 			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
 			if(distCentroids[i]>maxDist) {
