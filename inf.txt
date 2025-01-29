@@ -1,5 +1,0 @@
-lines = numero di linee in un file di input
-samples = numero di elementi per linea
-data = dati del file di input
-cntroidPos = array di K elementi, ognuno rappresenta la posizione (indice) di un cluster
-centroids = matrice K * samples, una cella rappresenta il dato preso da data della posizione centrale di un cluster

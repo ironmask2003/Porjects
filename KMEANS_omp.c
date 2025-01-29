@@ -332,7 +332,9 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 		changes = 0;
-		#pragma omp parallel for private(class, dist) shared(minDist, changes)
+		minDist = FLT_MAX;
+
+		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
@@ -355,27 +357,26 @@ int main(int argc, char* argv[])
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
 
-		#pragma omp parallel for private(class)
-		for(i=0; i<lines; i++) 
+		#pragma omp parallel for private(class) reduction(+:pointsPerClass[:K]) reduction(+:auxCentroids[:K*samples])
+		for(i=0; i<lines; i++)
 		{
 			class=classMap[i];
 			pointsPerClass[class-1]++;
-			#pragma omp parallel for
 			for(j=0; j<samples; j++){
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
 		}
 
+		#pragma omp parallel for collapse(2)
 		for(i=0; i<K; i++) 
 		{
-			#pragma omp parallel for
 			for(j=0; j<samples; j++){
 				auxCentroids[i*samples+j] /= pointsPerClass[i];
 			}
 		}
 		
 		maxDist=FLT_MIN;
-		#pragma omp parallel for shared(maxDist)
+		#pragma omp parallel for reduction(max:maxDist)
 		for(i=0; i<K; i++){
 			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
 			if(distCentroids[i]>maxDist) {
