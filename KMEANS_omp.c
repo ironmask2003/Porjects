@@ -362,7 +362,6 @@ int main(int argc, char* argv[])
 		{
 			class=classMap[i];
 			pointsPerClass[class-1]++;
-			#pragma omp parallel for private(class)
 			for(j=0; j<samples; j++){
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
@@ -383,7 +382,7 @@ int main(int argc, char* argv[])
 				maxDist=distCentroids[i];
 			}
 		}
-		
+
 		memcpy(centroids, auxCentroids, (K*samples*sizeof(float)));
 		
 		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
