@@ -357,23 +357,20 @@ int main(int argc, char* argv[])
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
 
-		#pragma omp parallel private(class) reduction(+:pointsPerClass[:K]) reduction(+:auxCentroids[:K*samples])
+		for(i=0; i<lines; i++)
 		{
-			for(i=0; i<lines; i++)
-			{
-				class=classMap[i];
-				pointsPerClass[class-1]++;
-				for(j=0; j<samples; j++){
-					auxCentroids[(class-1)*samples+j] += data[i*samples+j];
-				}
+			class=classMap[i];
+			pointsPerClass[class-1]++;
+			for(j=0; j<samples; j++){
+				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
+		}
 
-			#pragma omp parallel for collapse(2)
-			for(i=0; i<K; i++) 
-			{
-				for(j=0; j<samples; j++){
-					auxCentroids[i*samples+j] /= pointsPerClass[i];
-				}
+		#pragma omp parallel for collapse(2)
+		for(i=0; i<K; i++) 
+		{
+			for(j=0; j<samples; j++){
+				auxCentroids[i*samples+j] /= pointsPerClass[i];
 			}
 		}
 		
