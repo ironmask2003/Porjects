@@ -334,14 +334,14 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class, dist) reduction(+:changes) reduction(min:minDist)
+		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist)
 		for(i=0; i<lines; i++){
+			// printa i numeri di thread
 			class=1;
 			minDist=FLT_MAX;
 			
 			for(j=0; j<K; j++){
 				dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
-
 				if(dist < minDist){
 					minDist=dist;
 					class=j+1;
@@ -357,12 +357,12 @@ int main(int argc, char* argv[])
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
 
+		#pragma omp parallel for private(class) reduction(+:pointsPerClass[:K]) reduction(+:auxCentroids[:K*samples])
 		for(i=0; i<lines; i++)
 		{
 			class=classMap[i];
 			pointsPerClass[class-1]++;
 			for(j=0; j<samples; j++){
-				#pragma omp atomic
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
 		}
