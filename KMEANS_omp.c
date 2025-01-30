@@ -339,6 +339,7 @@ int main(int argc, char* argv[])
 			class=1;
 			minDist=FLT_MAX;
 			
+			#pragma omp parallel for private(dist) reduction(min:minDist)
 			for(j=0; j<K; j++){
 				dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 
