@@ -362,6 +362,7 @@ int main(int argc, char* argv[])
 			class=classMap[i];
 			pointsPerClass[class-1]++;
 			for(j=0; j<samples; j++){
+				#pragma omp atomic
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
 		}
