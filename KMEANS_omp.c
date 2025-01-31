@@ -326,6 +326,8 @@ int main(int argc, char* argv[])
  *
  */
 
+	omp_set_dynamic(0);
+
 	do{
 		it++;
 	
