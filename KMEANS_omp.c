@@ -340,9 +340,6 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		// temp = omp_get_wtime() - start;
-		// printf("%lf\n", temp);
-
 		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist) schedule(guided)
 		for(i=0; i<lines; i++){
 			class=1;
@@ -368,6 +365,9 @@ int main(int argc, char* argv[])
 			}
 			classMap[i]=class;
 		}
+
+		temp = omp_get_wtime() - start;
+		printf("%lf\n", temp);
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
