@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		#pragma omp parallel schedule(static)
+		#pragma omp parallel for schedule(static)
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
