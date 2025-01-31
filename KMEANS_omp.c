@@ -170,16 +170,16 @@ This function could be modified
 */
 float euclideanDistance(float *point, float *center, int samples)
 {
-	float dist_temp=0.0;
+	float dist=0.0;
 	float num1, num2;
 	for(int i=0; i<samples; i++) 
 	{
 		num1 = point[i];
 		num2 = center[i];
-		dist_temp += (num1 - num2)*(num1 - num2);
+		dist += (num1 - num2)*(num1 - num2);
 	}
-	dist_temp = sqrt(dist_temp);
-	return(dist_temp);
+	dist = sqrt(dist);
+	return(dist);
 }
 
 /*
@@ -329,8 +329,9 @@ int main(int argc, char* argv[])
  *
  */
 
-	double temp;
-	dist = 0.0;
+	// double temp;
+	float num1;
+	float num2;
 
 	do{
 		it++;
@@ -340,13 +341,22 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
+		// temp = omp_get_wtime() - start;
+		// printf("%lf\n", temp);
+
 		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist) schedule(guided)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
 
 			for(j=0; j<K; j++){
-				dist = euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
+				dist = 0.0;
+				for(int z=0; z<samples; z++) {
+					num1 = data[i*samples + z];
+					num2 = centroids[j*samples + z];
+					dist += (num1 - num2) * (num1 - num2);
+				}
+				dist = sqrt(dist);
 				// float* center = &centroids[j*samples];
 				/* #pragma omp critical
 				{
@@ -365,9 +375,6 @@ int main(int argc, char* argv[])
 			}
 			classMap[i]=class;
 		}
-
-		temp = omp_get_wtime() - start;
-		printf("%lf\n", temp);
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
