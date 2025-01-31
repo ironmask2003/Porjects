@@ -326,8 +326,6 @@ int main(int argc, char* argv[])
  *
  */
 
-	omp_set_dynamic(1);
-
 	do{
 		it++;
 	
@@ -367,7 +365,7 @@ int main(int argc, char* argv[])
 				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
 			}
 		}
-		
+
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
