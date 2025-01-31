@@ -170,13 +170,16 @@ This function could be modified
 */
 float euclideanDistance(float *point, float *center, int samples)
 {
-	float dist=0.0;
+	float dist_temp=0.0;
+	float num1, num2;
 	for(int i=0; i<samples; i++) 
 	{
-		dist+= (point[i]-center[i])*(point[i]-center[i]);
+		num1 = point[i];
+		num2 = center[i];
+		dist_temp += (num1 - num2)*(num1 - num2);
 	}
-	dist = sqrt(dist);
-	return(dist);
+	dist_temp = sqrt(dist_temp);
+	return(dist_temp);
 }
 
 /*
@@ -326,6 +329,9 @@ int main(int argc, char* argv[])
  *
  */
 
+	double temp;
+	dist = 0.0;
+
 	do{
 		it++;
 	
@@ -334,13 +340,24 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class, dist, j) reduction(+:changes) reduction(min:minDist)
+		// temp = omp_get_wtime() - start;
+		// printf("%lf\n", temp);
+
+		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist) schedule(guided)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
 
 			for(j=0; j<K; j++){
-				dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
+				dist = euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
+				// float* center = &centroids[j*samples];
+				/* #pragma omp critical
+				{
+					for(int z=0; z<samples; z++) {
+						dist += (point[z]-center[z])*(point[z]-center[z]);
+					}
+					dist = sqrt(dist);
+				} */
 				if(dist < minDist){
 					minDist=dist;
 					class=j+1;
