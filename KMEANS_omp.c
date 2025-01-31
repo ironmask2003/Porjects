@@ -368,6 +368,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		#pragma omp parallel for collapse(2)
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
