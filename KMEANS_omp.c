@@ -376,7 +376,7 @@ int main(int argc, char* argv[])
 		}
 		
 		maxDist=FLT_MIN;
-		#pragma omp parallel for reduction(max:maxDist) schedule(static)
+		#pragma omp parallel for reduction(max:maxDist)
 		for(i=0; i<K; i++){
 			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
 			if(distCentroids[i]>maxDist) {
