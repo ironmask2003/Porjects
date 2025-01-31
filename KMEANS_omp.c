@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class) reduction(min:minDist)
+		#pragma omp parallel for private(class, minDist, dist, j) reduction(+:changes)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
@@ -347,7 +347,6 @@ int main(int argc, char* argv[])
 				}
 			}
 			if(classMap[i]!=class){
-				#pragma omp atomic
 				changes++;
 			}
 			classMap[i]=class;
@@ -357,7 +356,7 @@ int main(int argc, char* argv[])
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
 
-		#pragma omp parallel for private(class) reduction(+:pointsPerClass[:K]) reduction(+:auxCentroids[:K*samples])
+		#pragma omp parallel for private(class, j) reduction(+:auxCentroids[:K*samples], pointsPerClass[:K])
 		for(i=0; i<lines; i++)
 		{
 			class=classMap[i];
@@ -367,6 +366,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		#pragma omp parallel for private(j)
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
@@ -375,7 +375,7 @@ int main(int argc, char* argv[])
 		}
 		
 		maxDist=FLT_MIN;
-		#pragma omp parallel for reduction(max:maxDist)
+		#pragma omp parallel for private(dist) reduction(max:maxDist)
 		for(i=0; i<K; i++){
 			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
 			if(distCentroids[i]>maxDist) {
