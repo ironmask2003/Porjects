@@ -326,8 +326,6 @@ int main(int argc, char* argv[])
  *
  */
 
-	omp_set_dynamic(1);
-
 	do{
 		it++;
 	
@@ -336,7 +334,7 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist) schedule(dynamic)
+		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist) schedule(static)
 		for(i=0; i<lines; i++){
 			// printa i numeri di thread
 			class=1;
