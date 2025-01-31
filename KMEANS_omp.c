@@ -336,10 +336,9 @@ int main(int argc, char* argv[])
 
 		#pragma omp parallel for private(class) reduction(min:minDist)
 		for(i=0; i<lines; i++){
-			// printa i numeri di thread
 			class=1;
 			minDist=FLT_MAX;
-			
+
 			for(j=0; j<K; j++){
 				dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 				if(dist < minDist){
@@ -368,7 +367,6 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		#pragma omp parallel for collapse(2)
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
