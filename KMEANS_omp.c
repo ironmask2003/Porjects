@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
 		// temp = omp_get_wtime() - start;
 		// printf("%lf\n", temp);
 
-		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist) schedule(guided)
+		#pragma omp parallel for private(class, dist) reduction(+:changes) reduction(min:minDist)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
