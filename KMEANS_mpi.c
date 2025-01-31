@@ -329,12 +329,19 @@ int main(int argc, char* argv[])
  *
  */
 
+	int size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+
 	do{
 		it++;
 	
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 		changes = 0;
+
+		int local_lines = lines/size;
+		int local_classMap;
+
 		for(i=0; i<lines; i++)
 		{
 			class=1;

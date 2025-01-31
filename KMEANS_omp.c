@@ -334,6 +334,8 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
+		omp_set_dynamic(1);
+
 		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist) schedule(static)
 		for(i=0; i<lines; i++){
 			// printa i numeri di thread
@@ -357,7 +359,7 @@ int main(int argc, char* argv[])
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
 
-		#pragma omp parallel for private(class) reduction(+:pointsPerClass[:K]) reduction(+:auxCentroids[:K*samples])
+		#pragma omp parallel for private(class) reduction(+:pointsPerClass[:K]) reduction(+:auxCentroids[:K*samples]) schedule(static)
 		for(i=0; i<lines; i++)
 		{
 			class=classMap[i];
