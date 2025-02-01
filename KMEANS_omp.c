@@ -374,22 +374,20 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		maxDist=FLT_MIN;
-		#pragma omp parallel reduction(max:maxDist)
+		#pragma omp for collapse(2)
+		for(i=0; i<K; i++) 
 		{
-			#pragma omp for collapse(2)
-			for(i=0; i<K; i++) 
-			{
-				for(j=0; j<samples; j++){
-					auxCentroids[i*samples+j] /= pointsPerClass[i];
-				} 
-			}
+			for(j=0; j<samples; j++){
+				auxCentroids[i*samples+j] /= pointsPerClass[i];
+			} 
+		}
 
-			for(i=0; i<K; i++){
-				distCentroids[i] = euclideanDistance(&auxCentroids[i*samples], &centroids[i*samples], samples);
-				if(distCentroids[i]>maxDist) {
-					maxDist=distCentroids[i];
-				}
+		maxDist=FLT_MIN;
+		#pragma omp parallel for reduction(max:maxDist)
+		for(i=0; i<K; i++){
+			distCentroids[i] = euclideanDistance(&auxCentroids[i*samples], &centroids[i*samples], samples);
+			if(distCentroids[i]>maxDist) {
+				maxDist=distCentroids[i];
 			}
 		}
 
