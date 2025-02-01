@@ -400,6 +400,7 @@ int main(int argc, char* argv[])
 			for(j=0; j<samples; j++){
 				float num1 = auxCentroids[i*samples+j];
 				float num2 = centroids[i*samples+j];
+				#pragma omp atomic
 				dist += (num1 - num2) * (num1 - num2);
 			}
 			distCentroids[i] = sqrt(dist);
