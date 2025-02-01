@@ -341,13 +341,12 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class, j, z) reduction(+:changes) reduction(min:minDist) schedule(guided)
+		#pragma omp parallel for private(class, dist, j, z) reduction(+:changes) reduction(min:minDist) schedule(guided)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
 
 			for(j=0; j<K; j++){
-				#pragma omp parallel for reduction(+:dist)
 				for(z = 0; z < samples; z++) {
 					float num1 = data[i * samples + z];
 					float num2 = centroids[j * samples + z];
