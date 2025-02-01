@@ -394,7 +394,7 @@ int main(int argc, char* argv[])
 		}
 
 		maxDist=FLT_MIN;
-		#pragma omp parallel for private(j) reduction(max:maxDist) schedule(guided)
+		#pragma omp parallel for private(j) reduction(max:maxDist)
 		for(i=0; i<K; i++){
 			dist = 0.0;
 			for(j=0; j<samples; j++){
@@ -404,7 +404,6 @@ int main(int argc, char* argv[])
 			}
 			distCentroids[i] = sqrt(dist);
 			if(distCentroids[i]>maxDist) {
-				#pragma omp atomic write
 				maxDist=distCentroids[i];
 			}
 		}
