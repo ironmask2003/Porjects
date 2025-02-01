@@ -330,8 +330,6 @@ int main(int argc, char* argv[])
  */
 
 	// double temp;
-	float num1;
-	float num2;
 
 	do{
 		it++;
@@ -344,27 +342,13 @@ int main(int argc, char* argv[])
 		// temp = omp_get_wtime() - start;
 		// printf("%lf\n", temp);
 
-		#pragma omp parallel for private(class, dist) reduction(+:changes) reduction(min:minDist)
+		#pragma omp parallel for private(class, dist) reduction(+:changes) reduction(min:minDist) schedule(guided)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
 
 			for(j=0; j<K; j++){
-				dist = 0.0;
-				for(int z=0; z<samples; z++) {
-					num1 = data[i*samples + z];
-					num2 = centroids[j*samples + z];
-					dist += (num1 - num2) * (num1 - num2);
-				}
-				dist = sqrt(dist);
-				// float* center = &centroids[j*samples];
-				/* #pragma omp critical
-				{
-					for(int z=0; z<samples; z++) {
-						dist += (point[z]-center[z])*(point[z]-center[z]);
-					}
-					dist = sqrt(dist);
-				} */
+				dist = euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 				if(dist < minDist){
 					minDist=dist;
 					class=j+1;
@@ -390,19 +374,22 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		for(i=0; i<K; i++) 
-		{
-			for(j=0; j<samples; j++){
-				auxCentroids[i*samples+j] /= pointsPerClass[i];
-			} 
-		}
-		
 		maxDist=FLT_MIN;
-		#pragma omp parallel for reduction(max:maxDist)
-		for(i=0; i<K; i++){
-			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
-			if(distCentroids[i]>maxDist) {
-				maxDist=distCentroids[i];
+		#pragma omp parallel reduction(max:maxDist)
+		{
+			#pragma omp for collapse(2)
+			for(i=0; i<K; i++) 
+			{
+				for(j=0; j<samples; j++){
+					auxCentroids[i*samples+j] /= pointsPerClass[i];
+				} 
+			}
+
+			for(i=0; i<K; i++){
+				distCentroids[i] = euclideanDistance(&auxCentroids[i*samples], &centroids[i*samples], samples);
+				if(distCentroids[i]>maxDist) {
+					maxDist=distCentroids[i];
+				}
 			}
 		}
 
