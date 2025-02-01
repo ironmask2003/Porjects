@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
 			minDist=FLT_MAX;
 
 			for(j=0; j<K; j++){
-				#pragma omp simd reduction(+:dist)
+				#pragma omp for reduction(+:dist)
 				for(z = 0; z < samples; z++) {
 					float num1 = data[i * samples + z];
 					float num2 = centroids[j * samples + z];
