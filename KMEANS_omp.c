@@ -353,8 +353,7 @@ int main(int argc, char* argv[])
 					dist += (num1 - num2) * (num1 - num2);
 				}
 
-				dist = sqrt(dist);
-				if(dist < minDist){
+				if(sqrt(dist) < minDist){
 					minDist=dist;
 					class=j+1;
 				}
