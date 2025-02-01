@@ -330,6 +330,7 @@ int main(int argc, char* argv[])
  */
 
 	// double temp;
+	dist = 0.0;
 
 	do{
 		it++;
@@ -344,12 +345,20 @@ int main(int argc, char* argv[])
 			class=1;
 			minDist=FLT_MAX;
 
+			#pragma omp for collapse(2)
 			for(j=0; j<K; j++){
-				dist = euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
+				for(int k = 0; k < samples; k++) {
+					float num1 = data[i * samples + k];
+					float num2 = centroids[j * samples + k];
+					dist += (num1 - num2) * (num1 - num2);
+				}
+				dist = sqrt(dist);
 				if(dist < minDist){
 					minDist=dist;
 					class=j+1;
 				}
+
+				dist = 0.0;
 			}
 			if(classMap[i]!=class){
 				changes++;
