@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
  *
  */
 
-	// double temp;
+	double temp;
 
 	do{
 		it++;
@@ -338,9 +338,6 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 		changes = 0;
 		minDist = FLT_MAX;
-
-		// temp = omp_get_wtime() - start;
-		// printf("%lf\n", temp);
 
 		#pragma omp parallel for private(class) reduction(+:changes) reduction(min:minDist)
 		for(i=0; i<lines; i++){
@@ -360,6 +357,9 @@ int main(int argc, char* argv[])
 			classMap[i]=class;
 		}
 
+		temp = omp_get_wtime() - start;
+		printf("%lf\n", temp);
+
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
@@ -374,6 +374,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		#pragma omp for collapse(2)
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
