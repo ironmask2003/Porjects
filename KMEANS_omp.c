@@ -364,7 +364,6 @@ int main(int argc, char* argv[])
 			if(classMap[i]!=class){
 				changes++;
 			}
-			#pragma omp atomic write
 			classMap[i]=class;
 		}
 
@@ -403,7 +402,6 @@ int main(int argc, char* argv[])
 				#pragma omp atomic
 				dist += (num1 - num2) * (num1 - num2);
 			}
-			#pragma omp atomic write
 			distCentroids[i] = sqrt(dist);
 			if(distCentroids[i]>maxDist) {
 				maxDist=distCentroids[i];
