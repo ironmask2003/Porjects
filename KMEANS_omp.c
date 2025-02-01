@@ -364,6 +364,7 @@ int main(int argc, char* argv[])
 			if(classMap[i]!=class){
 				changes++;
 			}
+			#pragma omp atomic write
 			classMap[i]=class;
 		}
 
