@@ -350,6 +350,7 @@ int main(int argc, char* argv[])
 				for(z = 0; z < samples; z++) {
 					float num1 = data[i * samples + z];
 					float num2 = centroids[j * samples + z];
+					#pragma omp atomic
 					dist += (num1 - num2) * (num1 - num2);
 				}
 
