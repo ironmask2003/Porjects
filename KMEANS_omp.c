@@ -352,9 +352,9 @@ int main(int argc, char* argv[])
 				}
 			}
 			if(classMap[i]!=class){
-				#pragma omp atomic
 				changes++;
 			}
+			#pragma omp critical
 			classMap[i]=class;
 		}
 
