@@ -331,6 +331,7 @@ int main(int argc, char* argv[])
 
 	// double temp;
 	dist = 0.0;
+	int z;
 
 	do{
 		it++;
@@ -340,15 +341,15 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class, dist, j, k) reduction(+:changes) reduction(min:minDist)
+		#pragma omp parallel for private(class, dist, j, z) reduction(+:changes) reduction(min:minDist)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
 
 			for(j=0; j<K; j++){
-				for(int k = 0; k < samples; k++) {
-					float num1 = data[i * samples + k];
-					float num2 = centroids[j * samples + k];
+				for(z = 0; z < samples; z++) {
+					float num1 = data[i * samples + z];
+					float num2 = centroids[j * samples + z];
 					dist += (num1 - num2) * (num1 - num2);
 				}
 
