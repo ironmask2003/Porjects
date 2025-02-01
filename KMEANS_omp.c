@@ -344,14 +344,14 @@ int main(int argc, char* argv[])
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
-
-			#pragma omp for collapse(2)
+			
 			for(j=0; j<K; j++){
 				for(int k = 0; k < samples; k++) {
 					float num1 = data[i * samples + k];
 					float num2 = centroids[j * samples + k];
 					dist += (num1 - num2) * (num1 - num2);
 				}
+
 				dist = sqrt(dist);
 				if(dist < minDist){
 					minDist=dist;
