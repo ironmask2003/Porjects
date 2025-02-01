@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
  *
  */
 
-	double temp;
+	// double temp;
 
 	do{
 		it++;
@@ -352,13 +352,14 @@ int main(int argc, char* argv[])
 				}
 			}
 			if(classMap[i]!=class){
+				#pragma omp atomic
 				changes++;
 			}
 			classMap[i]=class;
 		}
 
-		temp = omp_get_wtime() - start;
-		printf("%lf\n", temp);
+		// temp = omp_get_wtime() - start;
+		// printf("%lf\n", temp);
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
