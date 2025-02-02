@@ -337,9 +337,8 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 		changes = 0;
-		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes)
+		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes) schedule(static)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
