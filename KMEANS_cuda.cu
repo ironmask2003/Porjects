@@ -21,6 +21,7 @@
 #include <time.h>
 #include <string.h>
 #include <float.h>
+#include <omp.h>
 #include <cuda.h>
 
 

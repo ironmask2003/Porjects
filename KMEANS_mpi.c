@@ -339,9 +339,6 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 		changes = 0;
 
-		int local_lines = lines/size;
-		int local_classMap;
-
 		for(i=0; i<lines; i++)
 		{
 			class=1;
