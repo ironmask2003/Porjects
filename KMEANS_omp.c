@@ -339,7 +339,7 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes) schedule(guided)
+		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
