@@ -357,6 +357,8 @@ int main(int argc, char* argv[])
 				changes++;
 			}
 			classMap[i]=class;
+
+			#pragma omp barrier
 		}
 
 		printf("%f\n", minDist);
