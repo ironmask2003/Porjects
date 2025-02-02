@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 		changes = 0;
 
-		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes) schedule(static)
+		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes) schedule(dynamic)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
