@@ -330,8 +330,6 @@ int main(int argc, char* argv[])
  */
 
 	// double temp;
-	dist = 0.0;
-	int z;
 
 	do{
 		it++;
@@ -341,30 +339,21 @@ int main(int argc, char* argv[])
 		changes = 0;
 		minDist = FLT_MAX;
 
-		#pragma omp parallel for private(class, dist, j, z, minDist) reduction(+:changes) schedule(guided)
+		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes) schedule(guided)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
 
 			for(j=0; j<K; j++){
-				for(z = 0; z < samples; z++) {
-					float num1 = data[i * samples + z];
-					float num2 = centroids[j * samples + z];
-					dist += (num1 - num2) * (num1 - num2);
-				}
-
-				dist = sqrt(dist);
+				dist = euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 				if(dist < minDist){
 					minDist=dist;
 					class=j+1;
 				}
-
-				dist = 0.0;
 			}
 			if(classMap[i]!=class){
 				changes++;
 			}
-			#pragma omp atomic write
 			classMap[i]=class;
 		}
 
@@ -394,7 +383,7 @@ int main(int argc, char* argv[])
 		}
 
 		maxDist=FLT_MIN;
-		#pragma omp parallel for private(j, dist) reduction(max:maxDist)
+		#pragma omp parallel for private(dist) reduction(max:maxDist)
 		for(i=0; i<K; i++){
 			dist = euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
 			distCentroids[i] = dist;
