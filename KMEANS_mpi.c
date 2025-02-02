@@ -332,6 +332,20 @@ int main(int argc, char* argv[])
 	int size;
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+	int local_changes;
+
+	// Divisione delle linee tra i processi
+	int local_lines = lines / size;
+	// Inizio e fine delle linee assegnate a ciascun processo
+	int start_line = rank * local_lines;
+	int end_line = (rank == size - 1) ? lines : start_line + local_lines;	// Se e' l'ultimo processo, assegna tutte le linee rimanenti
+
+	// Divisione dei cluster tra i processi
+	int local_K = K / size;
+	// Inizio e fine dei cluster assegnati a ciascun processo
+	int start_K = rank * local_K;
+	int end_K = (rank == size - 1) ? K : start_K + local_K; 	// Se e' l'ultimo processo, assegna tutti i cluster rimanenti
+
 	do{
 		it++;
 	
@@ -339,7 +353,9 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 		changes = 0;
 
-		for(i=0; i<lines; i++)
+		local_changes = 0;
+
+		for(i=start_line; i<end_line; i++)
 		{
 			class=1;
 			minDist=FLT_MAX;
@@ -355,16 +371,19 @@ int main(int argc, char* argv[])
 			}
 			if(classMap[i]!=class)
 			{
-				changes++;
+				local_changes++;
 			}
 			classMap[i]=class;
 		}
 
+		// Somma dei local_changes di tutti i processi
+		MPI_Allreduce(&local_changes, &changes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
-
-		for(i=0; i<lines; i++) 
+		
+		for(i=start_line; i<end_line; i++) 
 		{
 			class=classMap[i];
 			pointsPerClass[class-1] = pointsPerClass[class-1] +1;
@@ -373,24 +392,39 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		for(i=0; i<K; i++) 
+		// Somma dei pointsPerClass di tutti i processi
+		MPI_Allreduce(MPI_IN_PLACE, pointsPerClass, K, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+		// Somma dei auxCentroids di tutti i processi
+		MPI_Allreduce(MPI_IN_PLACE, auxCentroids, K*samples, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+
+		for(i=start_K; i<end_K; i++) 
 		{
 			for(j=0; j<samples; j++){
 				auxCentroids[i*samples+j] /= pointsPerClass[i];
 			}
 		}
+
+		// Gather di auxCentroids
+		MPI_Allgather(MPI_IN_PLACE, local_K * samples, MPI_FLOAT, auxCentroids, local_K * samples, MPI_FLOAT, MPI_COMM_WORLD);
 		
-		maxDist=FLT_MIN;
-		for(i=0; i<K; i++){
-			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
-			if(distCentroids[i]>maxDist) {
-				maxDist=distCentroids[i];
+		maxDist = FLT_MIN;
+		float local_maxDist = FLT_MIN;
+		for (i = start_K; i < end_K; i++) {
+			distCentroids[i] = euclideanDistance(&centroids[i * samples], &auxCentroids[i * samples], samples);
+			if (distCentroids[i] > local_maxDist) {
+				local_maxDist = distCentroids[i];
 			}
 		}
+
+		// Trova il massimo tra i massimi locali
+		MPI_Allreduce(&local_maxDist, &maxDist, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+
 		memcpy(centroids, auxCentroids, (K*samples*sizeof(float)));
-		
-		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
-		outputMsg = strcat(outputMsg,line);
+
+		if (rank == 0) {
+			sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
+			outputMsg = strcat(outputMsg,line);
+		}
 
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 
