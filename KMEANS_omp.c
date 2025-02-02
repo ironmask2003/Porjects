@@ -358,9 +358,9 @@ int main(int argc, char* argv[])
 					changes++;
 				}
 				classMap[i]=class;
-
-				#pragma omp barrier
 			}
+
+			#pragma omp barrier
 		}
 
 		// temp = omp_get_wtime() - start;
