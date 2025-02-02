@@ -357,8 +357,6 @@ int main(int argc, char* argv[])
 			classMap[i]=class;
 		}
 
-		printf("%f\n", minDist);
-
 		// temp = omp_get_wtime() - start;
 		// printf("%lf\n", temp);
 
