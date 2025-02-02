@@ -349,8 +349,6 @@ int main(int argc, char* argv[])
 					minDist=dist;
 					class=j+1;
 				}
-
-				#pragma omp barrier
 			}
 
 			if(classMap[i]!=class){
