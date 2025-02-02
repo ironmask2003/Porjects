@@ -352,13 +352,14 @@ int main(int argc, char* argv[])
 						class=j+1;
 					}
 
-					#pragma omp barrier
 				}
 
 				if(classMap[i]!=class){
 					changes++;
 				}
 				classMap[i]=class;
+
+				#pragma omp barrier
 			}
 		}
 
