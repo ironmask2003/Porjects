@@ -338,30 +338,27 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 		changes = 0;
 
-		#pragma omp parallel 
-		{
-			#pragma omp for private(class, dist, j, minDist) reduction(+:changes) schedule(guided)
-			for(i=0; i<lines; i++){
-				class=1;
-				minDist=FLT_MAX;
+		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes) schedule(guided)
+		for(i=0; i<lines; i++){
+			class=1;
+			minDist=FLT_MAX;
 
-				for(j=0; j<K; j++){
-					dist = euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
-					if(dist < minDist){
-						minDist=dist;
-						class=j+1;
-					}
-
+			for(j=0; j<K; j++){
+				dist = euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
+				if(dist < minDist){
+					minDist=dist;
+					class=j+1;
 				}
 
-				if(classMap[i]!=class){
-					changes++;
-				}
-				classMap[i]=class;
 			}
 
-			#pragma omp barrier
+			if(classMap[i]!=class){
+				changes++;
+			}
+			classMap[i]=class;
 		}
+
+		#pragma omp barrier
 
 		// temp = omp_get_wtime() - start;
 		// printf("%lf\n", temp);
