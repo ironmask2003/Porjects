@@ -396,14 +396,8 @@ int main(int argc, char* argv[])
 		maxDist=FLT_MIN;
 		#pragma omp parallel for private(j, dist) reduction(max:maxDist)
 		for(i=0; i<K; i++){
-			dist = 0.0;
-			for(j=0; j<samples; j++){
-				float num1 = auxCentroids[i*samples+j];
-				float num2 = centroids[i*samples+j];
-				#pragma omp atomic
-				dist += (num1 - num2) * (num1 - num2);
-			}
-			distCentroids[i] = sqrt(dist);
+			dist = euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
+			distCentroids[i] = dist;
 			if(distCentroids[i]>maxDist) {
 				maxDist=distCentroids[i];
 			}
