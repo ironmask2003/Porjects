@@ -220,6 +220,11 @@ void zeroIntArray(int *array, int size)
 }
 
 
+// Variabili global
+__constant__ int gpu_samples;
+__constant__ int gpu_K;
+__constant__ int gpu_lines;
+
 
 int main(int argc, char* argv[])
 {
@@ -345,6 +350,21 @@ int main(int argc, char* argv[])
  * START HERE: DO NOT CHANGE THE CODE ABOVE THIS POINT
  *
  */
+
+	// Copy data to device
+	float *d_data;
+	int *d_classMap;
+	float *d_centroids;
+	int *d_pointsPerClass;
+	float *d_auxCentroids;
+	float *d_distCentroids;
+
+	CHECK_CUDA_CALL( cudaMalloc(&d_data, lines*samples*sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMalloc(&d_classMap, lines*sizeof(int)) );
+	CHECK_CUDA_CALL( cudaMalloc(&d_centroids, K*samples*sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMalloc(&d_pointsPerClass, K*sizeof(int)) );
+	CHECK_CUDA_CALL( cudaMalloc(&d_auxCentroids, K*samples*sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMalloc(&d_distCentroids, K*sizeof(float)) );
 
 	do{
 		it++;

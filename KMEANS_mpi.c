@@ -287,16 +287,21 @@ int main(int argc, char* argv[])
 	// The centroids are points stored in the data array.
 	initCentroids(data, centroids, centroidPos, samples, K);
 
+	// Print parameters only in rank 0
+	if(rank == 0) {
+		printf("\n\tData file: %s \n\tPoints: %d\n\tDimensions: %d\n", argv[1], lines, samples);
+		printf("\tNumber of clusters: %d\n", K);
+		printf("\tMaximum number of iterations: %d\n", maxIterations);
+		printf("\tMinimum number of changes: %d [%g%% of %d points]\n", minChanges, atof(argv[4]), lines);
+		printf("\tMaximum centroid precision: %f\n", maxThreshold);
+	}
 
-	printf("\n\tData file: %s \n\tPoints: %d\n\tDimensions: %d\n", argv[1], lines, samples);
-	printf("\tNumber of clusters: %d\n", K);
-	printf("\tMaximum number of iterations: %d\n", maxIterations);
-	printf("\tMinimum number of changes: %d [%g%% of %d points]\n", minChanges, atof(argv[4]), lines);
-	printf("\tMaximum centroid precision: %f\n", maxThreshold);
-	
+	// Synchronize all processes
+	MPI_Barrier(MPI_COMM_WORLD);
+
 	//END CLOCK*****************************************
 	end = MPI_Wtime();;
-	printf("\nMemory allocation: %f seconds\n", end - start);
+	printf("\nMemory allocation of rank %d: %f seconds\n", rank, end - start);
 	fflush(stdout);
 	//**************************************************
 	//START CLOCK***************************************
@@ -434,28 +439,32 @@ int main(int argc, char* argv[])
  *
  */
 	// Output and termination conditions
-	printf("%s",outputMsg);	
+	if(rank == 0) printf("%s\n",outputMsg);	
 
 	//END CLOCK*****************************************
 	end = MPI_Wtime();
-	printf("\nComputation: %f seconds", end - start);
+	printf("\nComputation of rank %d: %f seconds", rank, end - start);
 	fflush(stdout);
+
+	// Synchronize all processes
+	MPI_Barrier(MPI_COMM_WORLD);
+
 	//**************************************************
 	//START CLOCK***************************************
 	start = MPI_Wtime();
 	//**************************************************
 
-	
-
-	if (changes <= minChanges) {
-		printf("\n\nTermination condition:\nMinimum number of changes reached: %d [%d]", changes, minChanges);
+	if (rank == 0) {
+		if (changes <= minChanges) {
+			printf("\n\nTermination condition:\nMinimum number of changes reached: %d [%d]\n", changes, minChanges);
+		}
+		else if (it >= maxIterations) {
+			printf("\n\nTermination condition:\nMaximum number of iterations reached: %d [%d]\n", it, maxIterations);
+		}
+		else {
+			printf("\n\nTermination condition:\nCentroid update precision reached: %g [%g]\n", maxDist, maxThreshold);
+		}	
 	}
-	else if (it >= maxIterations) {
-		printf("\n\nTermination condition:\nMaximum number of iterations reached: %d [%d]", it, maxIterations);
-	}
-	else {
-		printf("\n\nTermination condition:\nCentroid update precision reached: %g [%g]", maxDist, maxThreshold);
-	}	
 
 	// Writing the classification of each point to the output file.
 	error = writeResult(classMap, lines, argv[6]);
@@ -476,7 +485,7 @@ int main(int argc, char* argv[])
 
 	//END CLOCK*****************************************
 	end = MPI_Wtime();
-	printf("\n\nMemory deallocation: %f seconds\n", end - start);
+	printf("\nMemory deallocation of rank %d: %f seconds\n", rank, end - start);
 	fflush(stdout);
 	//***************************************************/
 	MPI_Finalize();
