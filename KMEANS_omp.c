@@ -236,11 +236,12 @@ int main(int argc, char* argv[])
 	*          and the next, the maximum distance between centroids is less than this precision, the
 	*          algorithm stops.
 	* argv[6]: Output file. Class assigned to each point of the input file.
+  * argv[7]: File where save the computation time
 	* */
-	if(argc !=  7)
+	if(argc !=  8)
 	{
 		fprintf(stderr,"EXECUTION ERROR K-MEANS: Parameters are not correct.\n");
-		fprintf(stderr,"./KMEANS [Input Filename] [Number of clusters] [Number of iterations] [Number of changes] [Threshold] [Output data file]\n");
+		fprintf(stderr,"./KMEANS [Input Filename] [Number of clusters] [Number of iterations] [Number of changes] [Threshold] [Output data file] [Computation time file] \n");
 		fflush(stderr);
 		exit(-1);
 	}
@@ -418,7 +419,7 @@ int main(int argc, char* argv[])
 	//END CLOCK*****************************************
 	end = omp_get_wtime();
 	printf("\nComputation: %f seconds", end - start);
-  writeCompTimeToFile("comp_time/omp/comp_time.txt", end - start);
+  writeCompTimeToFile(argv[7], end - start);
 	fflush(stdout);
 	//**************************************************
 	//START CLOCK***************************************
