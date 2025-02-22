@@ -246,6 +246,9 @@ int main(int argc, char* argv[])
 		exit(-1);
 	}
 
+  // Print del numero di thread
+  printf("Numero di thread: %d\n", omp_get_max_threads());
+
 	// Reading the input data
 	// lines = number of points; samples = number of dimensions per point
 	int lines = 0, samples= 0;  
