@@ -381,6 +381,9 @@ int main(int argc, char* argv[])
 			classMap[i]=class;
 		}
 
+    // Unisce i vari class map di tutti i processi e li manda a tutti i processi
+    MPI_Allgather(MPI_IN_PLACE, local_lines, MPI_INT, classMap, local_lines, MPI_INT, MPI_COMM_WORLD);
+
 		// Somma dei local_changes di tutti i processi
 		MPI_Allreduce(&local_changes, &changes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
@@ -467,7 +470,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Writing the classification of each point to the output file.
-	error = writeResult(classMap, lines, argv[6]);
+	if (rank == 0) error = writeResult(classMap, lines, argv[6]);
 	if(error != 0)
 	{
 		showFileError(error, argv[6]);

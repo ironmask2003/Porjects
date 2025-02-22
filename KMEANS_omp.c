@@ -205,6 +205,14 @@ void zeroIntArray(int *array, int size)
 		array[i] = 0;	
 }
 
+// Funzione che scrive su un file il un valore preso in input
+void writeCompTimeToFile(char *filename, float value) {
+  FILE *fp;
+  fp = fopen(filename, "w");
+  fprintf(fp, "%f", value);
+  fclose(fp);
+}
+
 
 
 int main(int argc, char* argv[])
@@ -338,7 +346,7 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 		changes = 0;
 
-		#pragma omp parallel for private(class, dist, j, minDist) reduction(+:changes) schedule(guided)
+		#pragma omp parallel for private(class, dist, j, minDist) shared(classMap) reduction(+:changes) schedule(guided)
 		for(i=0; i<lines; i++){
 			class=1;
 			minDist=FLT_MAX;
@@ -410,6 +418,7 @@ int main(int argc, char* argv[])
 	//END CLOCK*****************************************
 	end = omp_get_wtime();
 	printf("\nComputation: %f seconds", end - start);
+  writeCompTimeToFile("comp_time/omp/comp_time.txt", end - start);
 	fflush(stdout);
 	//**************************************************
 	//START CLOCK***************************************
