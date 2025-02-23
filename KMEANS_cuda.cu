@@ -226,7 +226,7 @@ __constant__ int gpu_K;
 __constant__ int gpu_lines;
 
 // Funzione che assegna ad ogni punto il centroide più vicino
-__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes, int class_var)
+__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes, int* class_var)
 {
 	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
@@ -446,6 +446,7 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
 		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
+		CHECK_CUDA_LAST();
 
 		CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) );
 		CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
