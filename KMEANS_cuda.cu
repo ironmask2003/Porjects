@@ -225,6 +225,8 @@ __constant__ int gpu_samples;
 __constant__ int gpu_K;
 __constant__ int gpu_lines;
 
+// Funzione che assegna ad ogni punto il centroide più vicino
+
 
 int main(int argc, char* argv[])
 {
