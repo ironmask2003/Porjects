@@ -196,17 +196,6 @@ __device__ float euclideanDistance(float *point, float *center, int samples)
 	return(dist);
 }
 
-float euclideanDistance(float *point, float *center, int samples)
-{
-	float dist=0.0;
-	for(int i=0; i<samples; i++) 
-	{
-		dist+= (point[i]-center[i])*(point[i]-center[i]);
-	}
-	dist = sqrt(dist);
-	return(dist);
-}
-
 /*
 Function zeroFloatMatriz: Set matrix elements to 0
 This function could be modified
@@ -237,7 +226,7 @@ __constant__ int gpu_K;
 __constant__ int gpu_lines;
 
 // Funzione che assegna ad ogni punto il centroide più vicino
-__global__ assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int changes)
+__global__ assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes)
 {
 	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
@@ -395,11 +384,11 @@ int main(int argc, char* argv[])
 
 	// Inizializzazione delle costanti per le gpu
 	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_K, &K, sizeof(int)));
-	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_n, &n, sizeof(int)));
-	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_d, &d, sizeof(int)));
+	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_samples, &samples, sizeof(int)));
+	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_lines, &lines, sizeof(int)));
 
 	// Adapt to the number of points
-	int pts_grid_size = n / (32 * 32) + 1;
+	int pts_grid_size = samples / (32 * 32) + 1;
 	int K_grid_size = K / (32 * 32) + 1;
 
 	// Set carveout to be of maximum size available
@@ -448,7 +437,7 @@ int main(int argc, char* argv[])
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-		assign_centroids<<<dyn_grid_pts, gen_block, K * d * sizeof(float)>>>(d_data, d_centroids, d_classMap, changes);
+		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, changes);
 
 		// Syncronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
