@@ -407,6 +407,8 @@ int main(int argc, char* argv[])
 	int *d_pointsPerClass;
 	float *d_auxCentroids;
 	float *d_distCentroids;
+	int *d_changes;
+	int *d_class_var;
 
 	CHECK_CUDA_CALL( cudaMalloc(&d_data, lines*samples*sizeof(float)) );
 	CHECK_CUDA_CALL( cudaMemcpy(d_data, data, lines*samples*sizeof(float), cudaMemcpyHostToDevice) );
@@ -426,18 +428,27 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMalloc(&d_distCentroids, K*sizeof(float)) );
 	CHECK_CUDA_CALL( cudaMemcpy(d_distCentroids, distCentroids, K*sizeof(float), cudaMemcpyHostToDevice) );
 
+	CHECK_CUDA_CALL( cudaMalloc(&d_changes, sizeof(int)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_changes, &changes, sizeof(int), cudaMemcpyHostToDevice) );
+
+	CHECK_CUDA_CALL( cudaMalloc(&d_class_var, sizeof(int)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_class_var, &class_var, sizeof(int), cudaMemcpyHostToDevice) );
+
 	do{
 		it++;
 	
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 
-		CHECK_CUDA_CALL(cudaMemset(changes, 0, sizeof(int)));
+		CHECK_CUDA_CALL(cudaMemset(d_changes, 0, sizeof(int)));
 
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
 		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, changes, class_var);
+
+		CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) );
+		CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
 
 		// Syncronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
