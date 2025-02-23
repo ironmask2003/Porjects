@@ -234,7 +234,7 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 
 	if(thread_index < gpu_lines)
 	{
-		class_var=1;
+		&class_var=1;
 		float dist, minDist=FLT_MAX;
 
 		for(int j=0; j<gpu_K; j++)
@@ -244,16 +244,16 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 			if(dist < minDist)
 			{
 				minDist=dist;
-				class_var=j+1;
+				&class_var=j+1;
 			}
 		}
 
-		if(d_classMap[thread_index]!=class_var)
+		if(d_classMap[thread_index]!=&class_var)
 		{
 			atomicAdd(changes, 1);
 		}
 
-		d_classMap[thread_index]=class_var;
+		d_classMap[thread_index]=&class_var;
 	}
 }
 
