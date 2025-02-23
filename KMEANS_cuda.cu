@@ -226,7 +226,7 @@ __constant__ int gpu_K;
 __constant__ int gpu_lines;
 
 // Funzione che assegna ad ogni punto il centroide più vicino
-__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes)
+__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes, int* class_var)
 {
 	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
@@ -234,7 +234,7 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 
 	if(thread_index < gpu_lines)
 	{
-		int class_var=1;
+		class_var=1;
 		float dist, minDist=FLT_MAX;
 
 		for(int j=0; j<gpu_K; j++)
@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
 	char line[100];
 
 	int j;
-	int class;
+	int class_var;
 	float dist, minDist;
 	int it=0;
 	int changes = 0;
@@ -437,7 +437,7 @@ int main(int argc, char* argv[])
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, changes);
+		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, changes, class_var);
 
 		// Syncronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
@@ -447,10 +447,10 @@ int main(int argc, char* argv[])
 
 		for(i=0; i<lines; i++) 
 		{
-			class=classMap[i];
-			pointsPerClass[class-1] = pointsPerClass[class-1] +1;
+			class_var=classMap[i];
+			pointsPerClass[class_var-1] = pointsPerClass[class_var-1] +1;
 			for(j=0; j<samples; j++){
-				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
+				auxCentroids[(class_var-1)*samples+j] += data[i*samples+j];
 			}
 		}
 
