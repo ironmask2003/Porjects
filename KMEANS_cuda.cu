@@ -185,6 +185,17 @@ void initCentroids(const float *data, float* centroids, int* centroidPos, int sa
 Function euclideanDistance: Euclidean distance
 This function could be modified
 */
+__device__ float euclideanDistance(float *point, float *center, int samples)
+{
+	float dist=0.0;
+	for(int i=0; i<samples; i++) 
+	{
+		dist+= (point[i]-center[i])*(point[i]-center[i]);
+	}
+	dist = sqrt(dist);
+	return(dist);
+}
+
 float euclideanDistance(float *point, float *center, int samples)
 {
 	float dist=0.0;
@@ -226,7 +237,36 @@ __constant__ int gpu_K;
 __constant__ int gpu_lines;
 
 // Funzione che assegna ad ogni punto il centroide più vicino
+__global__ assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int changes)
+{
+	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
+							(threadIdx.y * blockDim.x) +
+							threadIdx.x;
 
+	if(thread_index < gpu_lines)
+	{
+		int class=1;
+		float dist, minDist=FLT_MAX;
+
+		for(int j=0; j<gpu_K; j++)
+		{
+			dist=euclideanDistance(&d_data[thread_index*gpu_samples], &d_centroids[j*gpu_samples], gpu_samples);
+
+			if(dist < minDist)
+			{
+				minDist=dist;
+				class=j+1;
+			}
+		}
+
+		if(d_classMap[thread_index]!=class)
+		{
+			atomicAdd(changes, 1);
+		}
+
+		d_classMap[thread_index]=class;
+	}
+}
 
 int main(int argc, char* argv[])
 {
@@ -353,6 +393,24 @@ int main(int argc, char* argv[])
  *
  */
 
+	// Inizializzazione delle costanti per le gpu
+	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_K, &K, sizeof(int)));
+	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_n, &n, sizeof(int)));
+	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_d, &d, sizeof(int)));
+
+	// Adapt to the number of points
+	int pts_grid_size = n / (32 * 32) + 1;
+	int K_grid_size = K / (32 * 32) + 1;
+
+	// Set carveout to be of maximum size available
+	int carveout = cudaSharedmemCarveoutMaxShared;
+
+	CHECK_CUDA_CALL(cudaFuncSetAttribute(assign_centroids, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
+
+	dim3 gen_block(32, 32);
+	dim3 dyn_grid_pts(pts_grid_size);
+	dim3 dyn_grid_cent(K_grid_size);
+
 	// Copy data to device
 	float *d_data;
 	int *d_classMap;
@@ -362,42 +420,41 @@ int main(int argc, char* argv[])
 	float *d_distCentroids;
 
 	CHECK_CUDA_CALL( cudaMalloc(&d_data, lines*samples*sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_data, data, lines*samples*sizeof(float), cudaMemcpyHostToDevice) );
+
 	CHECK_CUDA_CALL( cudaMalloc(&d_classMap, lines*sizeof(int)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_classMap, classMap, lines*sizeof(int), cudaMemcpyHostToDevice) );
+	
 	CHECK_CUDA_CALL( cudaMalloc(&d_centroids, K*samples*sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
+	
 	CHECK_CUDA_CALL( cudaMalloc(&d_pointsPerClass, K*sizeof(int)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_pointsPerClass, pointsPerClass, K*sizeof(int), cudaMemcpyHostToDevice) );
+	
 	CHECK_CUDA_CALL( cudaMalloc(&d_auxCentroids, K*samples*sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_auxCentroids, auxCentroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
+	
 	CHECK_CUDA_CALL( cudaMalloc(&d_distCentroids, K*sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_distCentroids, distCentroids, K*sizeof(float), cudaMemcpyHostToDevice) );
 
 	do{
 		it++;
 	
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
-		changes = 0;
-		for(i=0; i<lines; i++)
-		{
-			class=1;
-			minDist=FLT_MAX;
-			for(j=0; j<K; j++)
-			{
-				dist=euclideanDistance(&data[i*samples], &centroids[j*samples], samples);
 
-				if(dist < minDist)
-				{
-					minDist=dist;
-					class=j+1;
-				}
-			}
-			if(classMap[i]!=class)
-			{
-				changes++;
-			}
-			classMap[i]=class;
-		}
+		CHECK_CUDA_CALL(cudaMemset(changes, 0, sizeof(int)));
 
-		// 2. Recalculates the centroids: calculates the mean within each cluster
-		zeroIntArray(pointsPerClass,K);
-		zeroFloatMatriz(auxCentroids,K,samples);
+		// Synschronize
+		CHECK_CUDA_CALL(cudaDeviceSynchronize());
+
+		assign_centroids<<<dyn_grid_pts, gen_block, K * d * sizeof(float)>>>(d_data, d_centroids, d_classMap, changes);
+
+		// Syncronize
+		CHECK_CUDA_CALL(cudaDeviceSynchronize());
+
+		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
+		CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
 		for(i=0; i<lines; i++) 
 		{
