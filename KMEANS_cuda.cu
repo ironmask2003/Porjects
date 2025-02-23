@@ -226,7 +226,7 @@ __constant__ int gpu_K;
 __constant__ int gpu_lines;
 
 // Funzione che assegna ad ogni punto il centroide più vicino
-__global__ assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes)
+__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes)
 {
 	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
@@ -234,7 +234,7 @@ __global__ assign_centroids(float *d_data, float *d_centroids, int *d_classMap, 
 
 	if(thread_index < gpu_lines)
 	{
-		int class=1;
+		int class_var=1;
 		float dist, minDist=FLT_MAX;
 
 		for(int j=0; j<gpu_K; j++)
@@ -244,16 +244,16 @@ __global__ assign_centroids(float *d_data, float *d_centroids, int *d_classMap, 
 			if(dist < minDist)
 			{
 				minDist=dist;
-				class=j+1;
+				class_var=j+1;
 			}
 		}
 
-		if(d_classMap[thread_index]!=class)
+		if(d_classMap[thread_index]!=class_var)
 		{
 			atomicAdd(changes, 1);
 		}
 
-		d_classMap[thread_index]=class;
+		d_classMap[thread_index]=class_var;
 	}
 }
 
