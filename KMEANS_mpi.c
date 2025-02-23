@@ -202,6 +202,14 @@ void zeroIntArray(int *array, int size)
 		array[i] = 0;	
 }
 
+// Funzione che scrive su un file il un valore preso in input
+void writeCompTimeToFile(char *filename, float value) {
+  FILE *fp;
+  fp = fopen(filename, "w");
+  fprintf(fp, "%f", value);
+  fclose(fp);
+}
+
 int main(int argc, char* argv[])
 {
 	/* 0. Initialize MPI */
@@ -228,8 +236,9 @@ int main(int argc, char* argv[])
 	*          and the next, the maximum distance between centroids is less than this precision, the
 	*          algorithm stops.
 	* argv[6]: Output file. Class assigned to each point of the input file.
+  * argv[7]: File where save the computation time
 	* */
-	if(argc !=  7)
+	if(argc !=  8)
 	{
 		fprintf(stderr,"EXECUTION ERROR K-MEANS: Parameters are not correct.\n");
 		fprintf(stderr,"./KMEANS [Input Filename] [Number of clusters] [Number of iterations] [Number of changes] [Threshold] [Output data file]\n");
@@ -447,6 +456,7 @@ int main(int argc, char* argv[])
 	//END CLOCK*****************************************
 	end = MPI_Wtime();
 	printf("\nComputation of rank %d: %f seconds", rank, end - start);
+  if (rank == 0) writeCompTimeToFile(argv[7], end - start);
 	fflush(stdout);
 
 	// Synchronize all processes
