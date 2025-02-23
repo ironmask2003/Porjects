@@ -445,7 +445,7 @@ int main(int argc, char* argv[])
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, changes, class_var);
+		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
 
 		CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) );
 		CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
