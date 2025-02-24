@@ -279,7 +279,6 @@ __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass){
     }
 }
 
-/*
 __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist, float* d_distCentroids){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -289,7 +288,7 @@ __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist,
             *d_maxDist=d_distCentroids[id];
         }
     }
-}*/
+}
 
 int main(int argc, char* argv[])
 {
