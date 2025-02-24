@@ -491,7 +491,6 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
         // Copy d_centroids in centroids
-        CHECK_CUDA_CALL( cudaMemcpy(centroids, d_centroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
         CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
 
         /*
