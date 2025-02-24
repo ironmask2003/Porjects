@@ -496,10 +496,10 @@ int main(int argc, char* argv[])
 
 		for(i=0; i<lines; i++) 
 		{
-			class=classMap[i];
-			pointsPerClass[class-1] = pointsPerClass[class-1] +1;
+			class_var=classMap[i];
+			pointsPerClass[class_var-1] = pointsPerClass[class_var-1] +1;
 			for(j=0; j<samples; j++){
-				auxCentroids[(class-1)*samples+j] += data[i*samples+j];
+				auxCentroids[(class_var-1)*samples+j] += data[i*samples+j];
 			}
 		}
 
