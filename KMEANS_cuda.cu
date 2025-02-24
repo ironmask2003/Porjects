@@ -196,6 +196,17 @@ __device__ float euclideanDistance(float *point, float *center, int samples)
 	return(dist);
 }
 
+float euclideanDistance_try(float *point, float *center, int samples)
+{
+	float dist=0.0;
+	for(int i=0; i<samples; i++) 
+	{
+		dist+= (point[i]-center[i])*(point[i]-center[i]);
+	}
+	dist = sqrt(dist);
+	return(dist);
+}
+
 /*
 Function zeroFloatMatriz: Set matrix elements to 0
 This function could be modified
@@ -512,7 +523,7 @@ int main(int argc, char* argv[])
 		
 		maxDist=FLT_MIN;
 		for(i=0; i<K; i++){
-			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
+			distCentroids[i]=euclideanDistance_try(&centroids[i*samples], &auxCentroids[i*samples], samples);
 			if(distCentroids[i]>maxDist) {
 				maxDist=distCentroids[i];
 			}
