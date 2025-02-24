@@ -482,7 +482,7 @@ int main(int argc, char* argv[])
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 	
 	CHECK_CUDA_CALL(cudaFree(d_data));
-	CHECK_CUDA_CALL(cudaFree(d_centroids);
+	CHECK_CUDA_CALL(cudaFree(d_centroids));
 	CHECK_CUDA_CALL(cudaFree(d_classMap));
 	CHECK_CUDA_CALL(cudaFree(d_changes));
 	CHECK_CUDA_CALL(cudaFree(d_class_var));
