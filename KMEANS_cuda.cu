@@ -271,12 +271,12 @@ __global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroid
 		for(int j=0; j<gpu_samples; j++){
 			atomicAdd(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[thread_index*gpu_samples+j]);
 		}
+	}
 
-		for(int i=0; i<gpu_K; i++) 
-		{
-			for(int j=0; j<gpu_samples; j++){
-				d_auxCentroids[i*gpu_samples+j] /= d_pointsPerClass[i];
-			}
+	for(int i=0; i<gpu_K; i++) 
+	{
+		for(int j=0; j<gpu_samples; j++){
+			d_auxCentroids[i*gpu_samples+j] /= d_pointsPerClass[i];
 		}
 	}
 }
