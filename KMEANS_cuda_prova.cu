@@ -419,6 +419,8 @@ int main(int argc, char* argv[])
 
     CHECK_CUDA_CALL( cudaMalloc((void**)&d_changes, sizeof(int)) );
 
+	changes = 0;
+
 	do{
 		it++;
 	
