@@ -571,7 +571,7 @@ int main(int argc, char* argv[])
 	start = omp_get_wtime();
 	//**************************************************
 
-	
+	printf("print termination free\n");
 
 	if (changes <= minChanges) {
 		printf("\n\nTermination condition:\nMinimum number of changes reached: %d [%d]", changes, minChanges);
