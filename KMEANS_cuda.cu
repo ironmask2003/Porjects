@@ -280,7 +280,7 @@ __global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroid
 		class_var=d_classMap[thread_index];
 		d_pointsPerClass[class_var-1] = d_pointsPerClass[class_var-1] +1;
 		for(int j=0; j<gpu_samples; j++){
-			atomicAdd(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[i*gpu_samples+j]);
+			atomicAdd(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[thread_index*gpu_samples+j]);
 		}
 
 		for(int i=0; i<gpu_K; i++) 
