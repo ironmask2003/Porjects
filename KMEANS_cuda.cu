@@ -475,8 +475,12 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMalloc(&d_maxDist, sizeof(float)) );
 	CHECK_CUDA_CALL( cudaMemcpy(d_maxDist, &maxDist, sizeof(float), cudaMemcpyHostToDevice) );
 
-	dim3 dimBlock(64);
-	dim3 dimGrid(72);
+	int pts_grid_size = samples / (32 * 32) + 1;
+	int K_grid_size = K / (32 * 32) + 1;
+
+	dim3 gen_block(32, 32);
+	dim3 dyn_grid_pts(pts_grid_size);
+	dim3 dyn_grid_cent(K_grid_size);
 
 	do{
 		it++;
@@ -484,7 +488,7 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 
-		CHECK_CUDA_CALL(cudaMemset(d_changes, 0, sizeof(int)));
+		CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
 		CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 		CHECK_CUDA_CALL( cudaMemcpy(d_distCentroids, distCentroids, K*sizeof(float), cudaMemcpyHostToDevice) );
 		CHECK_CUDA_CALL( cudaMemcpy(d_classMap, classMap, lines*sizeof(int), cudaMemcpyHostToDevice) );
@@ -492,7 +496,7 @@ int main(int argc, char* argv[])
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-		assign_centroids<<<dimGrid, dimBlock, K*samples*sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
+		assign_centroids<<<dyn_grid_pts, gen_block, K*samples*sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
 		CHECK_CUDA_LAST();
 
 		// Syncronize
