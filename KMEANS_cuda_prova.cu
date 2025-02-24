@@ -429,7 +429,6 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaMemset(d_class_var, 1, sizeof(int)) );
 
         CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
-		CHECK_CUDA_CALL( cudaMemcpy(d_distCentroids, distCentroids, K*sizeof(float), cudaMemcpyHostToDevice) );
 		CHECK_CUDA_CALL( cudaMemcpy(d_classMap, classMap, lines*sizeof(int), cudaMemcpyHostToDevice) );
 
         // Synschronize
@@ -484,12 +483,8 @@ int main(int argc, char* argv[])
     cudaFree(d_data);
 	cudaFree(d_classMap);
 	cudaFree(d_centroids);
-	cudaFree(d_pointsPerClass);
-	cudaFree(d_auxCentroids);
-	cudaFree(d_distCentroids);
 	cudaFree(d_changes);
 	cudaFree(d_class_var);
-	cudaFree(d_maxDist);
 
 /*
  *
