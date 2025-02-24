@@ -268,7 +268,7 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 	}
 }
 
-__global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroids, int *d_pointsPerClass, int* class_var){
+/* __global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroids, int *d_pointsPerClass, int* class_var){
 
 	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
@@ -305,7 +305,7 @@ __global__ void max(float* d_maxDist, float* d_distCentroids, float* d_centroids
 			*d_maxDist=d_distCentroids[thread_index];
 		}
 	}
-}
+} */
 
 int main(int argc, char* argv[])
 {
@@ -568,7 +568,7 @@ int main(int argc, char* argv[])
 	start = omp_get_wtime();
 	//**************************************************
 
-	printf("print termination free\n");
+	printf("\nprint termination free\n");
 
 	if (changes <= minChanges) {
 		printf("\n\nTermination condition:\nMinimum number of changes reached: %d [%d]", changes, minChanges);
