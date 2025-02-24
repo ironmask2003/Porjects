@@ -245,7 +245,7 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 
 	if(thread_index < gpu_lines)
 	{
-		*class_var=1;
+		*class_var=d_classMap[thread_index];
 		float dist, minDist=FLT_MAX;
 
 		for(int j=0; j<gpu_K; j++)
