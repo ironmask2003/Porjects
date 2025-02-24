@@ -443,7 +443,6 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMemcpy(d_changes, &changes, sizeof(int), cudaMemcpyHostToDevice) );
 
 	CHECK_CUDA_CALL( cudaMalloc(&d_class_var, sizeof(int)) );
-	CHECK_CUDA_CALL( cudaMemcpy(d_class_var, &class_var, sizeof(int), cudaMemcpyHostToDevice) );
 
 	do{
 		it++;
@@ -452,6 +451,7 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 
 		CHECK_CUDA_CALL(cudaMemset(d_changes, 0, sizeof(int)));
+		changes = 0;
 
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
