@@ -235,12 +235,13 @@ __constant__ int d_K;
 __constant__ int d_samples;
 __constant__ int d_lines;
 
-__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes, int* class_var){
+__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes){
     int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
 							threadIdx.x;
 
 	if(thread_index < d_lines) {
+		int class_var = 1;
 		float dist, minDist=FLT_MAX;
 
 		for(int j=0; j<d_K; j++)
@@ -250,17 +251,16 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 			if(dist < minDist)
 			{
 				minDist=dist;
-				*class_var=j+1;
+				class_var=j+1;
 			}
 		}
 
-		if(d_classMap[thread_index]!=*class_var)
+		if(d_classMap[thread_index]!=class_var)
 		{
 			atomicAdd(changes, 1);
 		}
 
-		d_classMap[thread_index]=*class_var;
-        *class_var=d_classMap[thread_index];
+		d_classMap[thread_index]=class_var;
     }
 }
 
@@ -406,7 +406,6 @@ int main(int argc, char* argv[])
     float* d_centroids;
     int* d_classMap;
     int* d_changes;
-    int* d_class_var;
 
     // Allocazione della memoria sul device
     CHECK_CUDA_CALL( cudaMalloc((void**)&d_data, lines*samples*sizeof(float)) );
@@ -419,7 +418,6 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMemcpy(d_classMap, classMap, lines*sizeof(int), cudaMemcpyHostToDevice) );
 
     CHECK_CUDA_CALL( cudaMalloc((void**)&d_changes, sizeof(int)) );
-    CHECK_CUDA_CALL( cudaMalloc((void**)&d_class_var, sizeof(int)) );
 
 	do{
 		it++;
@@ -435,7 +433,7 @@ int main(int argc, char* argv[])
         // Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-        assign_centroids<<<dyn_grid_pts, gen_block>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
+        assign_centroids<<<dyn_grid_pts, gen_block>>>(d_data, d_centroids, d_classMap, d_changes);
 		CHECK_CUDA_LAST();
 
         // Syncronize
@@ -499,9 +497,8 @@ int main(int argc, char* argv[])
 	//END CLOCK*****************************************
 	end = omp_get_wtime();
 	printf("\nComputation: %f seconds", end - start);
-
-	printf("\nciao");
 	fflush(stdout);
+	printf("\nciao");
 	//**************************************************
 	//START CLOCK***************************************
 	start = omp_get_wtime();
