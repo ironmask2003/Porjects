@@ -542,8 +542,6 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMemcpy(centroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) )
 	CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
 
-	printf("ciao\n");
-
 	cudaFree(d_data);
 	cudaFree(d_classMap);
 	cudaFree(d_centroids);
@@ -593,6 +591,8 @@ int main(int argc, char* argv[])
 		exit(error);
 	}
 
+	printf("pre free\n");
+
 	//Free memory
 	free(data);
 	free(classMap);
@@ -601,6 +601,8 @@ int main(int argc, char* argv[])
 	free(distCentroids);
 	free(pointsPerClass);
 	free(auxCentroids);
+
+	printf("ciao\n");
 
 	//END CLOCK*****************************************
 	end = omp_get_wtime();
