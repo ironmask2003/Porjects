@@ -493,7 +493,6 @@ int main(int argc, char* argv[])
         // Copy d_centroids in centroids
         CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
 
-        /*
         max<<<numBlocks2, blockSize>>>(d_centroids, d_auxCentroids, d_maxDist, d_distCentroids);
         CHECK_CUDA_LAST();
         // Syncronize the device
@@ -507,21 +506,7 @@ int main(int argc, char* argv[])
 		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
 		outputMsg = strcat(outputMsg,line);
 
-        CHECK_CUDA_CALL( cudaDeviceSynchronize() ); */
-
-        // 2. Recalculates the centroids: calculates the mean within each cluster
-		
-		maxDist=FLT_MIN;
-		for(i=0; i<K; i++){
-			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
-			if(distCentroids[i]>maxDist) {
-				maxDist=distCentroids[i];
-			}
-		}
-		memcpy(centroids, auxCentroids, (K*samples*sizeof(float)));
-		
-		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
-		outputMsg = strcat(outputMsg,line);
+        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 
