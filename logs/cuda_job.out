@@ -7,9 +7,9 @@
 	Minimum number of changes: 100 [1% of 10000 points]
 	Maximum centroid precision: 0.000100
 
-Memory allocation: 0.116200 seconds
+Memory allocation: 0.124446 seconds
 
 [1] Cluster changes: 1024	Max. centroid distance: 532.709351
 [2] Cluster changes: 106	Max. centroid distance: 91.535622
 [3] Cluster changes: 58	Max. centroid distance: 82.572891
-Computation: 0.023374 seconds
+Computation: 0.023385 secondsPre fflush
