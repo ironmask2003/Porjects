@@ -565,6 +565,7 @@ int main(int argc, char* argv[])
 	//END CLOCK*****************************************
 	end = omp_get_wtime();
 	printf("\nComputation: %f seconds", end - start);
+	printf("print after comp\n");
 	fflush(stdout);
 	//**************************************************
 	//START CLOCK***************************************
