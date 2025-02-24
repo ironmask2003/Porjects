@@ -257,7 +257,7 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
     }
 }
 
-/*
+
 __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCentroids, int* d_classMap){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -270,6 +270,7 @@ __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCe
     }
 }
 
+/*
 __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass, float* d_centroids){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -473,7 +474,9 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) )
         CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
 
-        /*
+        // Syncronize the device
+        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
+
 		// 2. Recalculates the centroids: calculates the mean within each cluster
         CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
         CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
@@ -483,6 +486,11 @@ int main(int argc, char* argv[])
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
+        // Copy d_pointsPerClass in pointsPerClass
+        CHECK_CUDA_CALL( cudaMemcpy(pointsPerClass, d_pointsPerClass, K*sizeof(int), cudaMemcpyDeviceToHost) );
+        CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
+
+        /*
 		third_step<<<numBlocks2, blockSize>>>(d_auxCentroids, d_pointsPerClass, d_centroids);
         CHECK_CUDA_LAST();
         // Syncronize the device
@@ -504,18 +512,6 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaDeviceSynchronize() ); */
 
         // 2. Recalculates the centroids: calculates the mean within each cluster
-		zeroIntArray(pointsPerClass,K);
-		zeroFloatMatriz(auxCentroids,K,samples);
-
-		for(i=0; i<lines; i++) 
-		{
-			vclass=classMap[i];
-			pointsPerClass[vclass-1] = pointsPerClass[vclass-1] +1;
-			for(j=0; j<samples; j++){
-				auxCentroids[(vclass-1)*samples+j] += data[i*samples+j];
-			}
-		}
-
 		for(i=0; i<K; i++) 
 		{
 			for(j=0; j<samples; j++){
