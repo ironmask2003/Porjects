@@ -269,7 +269,6 @@ __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCe
     }
 }
 
-/*
 __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass, float* d_centroids){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -280,6 +279,7 @@ __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass, float* 
     }
 }
 
+/*
 __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist, float* d_distCentroids){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -485,16 +485,16 @@ int main(int argc, char* argv[])
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
-        // Copy d_pointsPerClass in pointsPerClass
-        CHECK_CUDA_CALL( cudaMemcpy(pointsPerClass, d_pointsPerClass, K*sizeof(int), cudaMemcpyDeviceToHost) );
-        CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
-
-        /*
 		third_step<<<numBlocks2, blockSize>>>(d_auxCentroids, d_pointsPerClass, d_centroids);
         CHECK_CUDA_LAST();
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
+        // Copy d_centroids in centroids
+        CHECK_CUDA_CALL( cudaMemcpy(centroids, d_centroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
+        CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
+
+        /*
         max<<<numBlocks2, blockSize>>>(d_centroids, d_auxCentroids, d_maxDist, d_distCentroids);
         CHECK_CUDA_LAST();
         // Syncronize the device
@@ -511,12 +511,6 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaDeviceSynchronize() ); */
 
         // 2. Recalculates the centroids: calculates the mean within each cluster
-		for(i=0; i<K; i++) 
-		{
-			for(j=0; j<samples; j++){
-				auxCentroids[i*samples+j] /= pointsPerClass[i];
-			}
-		}
 		
 		maxDist=FLT_MIN;
 		for(i=0; i<K; i++){
