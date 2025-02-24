@@ -246,6 +246,7 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
     }
 }
 
+/*
 __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCentroids, int* d_classMap){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
@@ -277,7 +278,7 @@ __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist,
             *d_maxDist=d_distCentroids[id];
         }
     }
-}
+}*/
 
 int main(int argc, char* argv[])
 {
@@ -441,7 +442,7 @@ int main(int argc, char* argv[])
     dim3 blockSize(256);
     dim3 numBlocks((lines + blockSize.x - 1) / blockSize.x);
 
-    dim3 numBlocks2((K + blockSize.x - 1) / blockSize.x);
+    // dim3 numBlocks2((K + blockSize.x - 1) / blockSize.x);
 
 	do{
 		it++;
@@ -449,13 +450,19 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
         CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
-        CHECK_CUDA_CALL( cudaMemset(d_maxDist, FLT_MIN, sizeof(float)) ); 
+
+        CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 
         assign_centroids<<<numBlocks, blockSize>>>(d_data, d_centroids, d_classMap, d_changes);
         CHECK_CUDA_LAST();
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
+        // Copy d_changes in changes
+        CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) )
+        CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
+
+        /*
 		// 2. Recalculates the centroids: calculates the mean within each cluster
         CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
         CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
@@ -483,7 +490,39 @@ int main(int argc, char* argv[])
 		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
 		outputMsg = strcat(outputMsg,line);
 
-        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
+        CHECK_CUDA_CALL( cudaDeviceSynchronize() ); */
+
+        // 2. Recalculates the centroids: calculates the mean within each cluster
+		zeroIntArray(pointsPerClass,K);
+		zeroFloatMatriz(auxCentroids,K,samples);
+
+		for(i=0; i<lines; i++) 
+		{
+			vclass=classMap[i];
+			pointsPerClass[vclass-1] = pointsPerClass[vclass-1] +1;
+			for(j=0; j<samples; j++){
+				auxCentroids[(vclass-1)*samples+j] += data[i*samples+j];
+			}
+		}
+
+		for(i=0; i<K; i++) 
+		{
+			for(j=0; j<samples; j++){
+				auxCentroids[i*samples+j] /= pointsPerClass[i];
+			}
+		}
+		
+		maxDist=FLT_MIN;
+		for(i=0; i<K; i++){
+			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
+			if(distCentroids[i]>maxDist) {
+				maxDist=distCentroids[i];
+			}
+		}
+		memcpy(centroids, auxCentroids, (K*samples*sizeof(float)));
+		
+		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
+		outputMsg = strcat(outputMsg,line);
 
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 
