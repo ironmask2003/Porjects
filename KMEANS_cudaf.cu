@@ -196,17 +196,6 @@ __device__ float d_euclideanDistance(float *point, float *center, int samples)
 	return(dist);
 }
 
-float euclideanDistance(float *point, float *center, int samples)
-{
-	float dist=0.0;
-	for(int i=0; i<samples; i++) 
-	{
-		dist+= (point[i]-center[i])*(point[i]-center[i]);
-	}
-	dist = sqrt(dist);
-	return(dist);
-}
-
 /*
 Function zeroFloatMatriz: Set matrix elements to 0
 This function could be modified
@@ -283,7 +272,7 @@ __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist,
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
     if (id < d_K){
-        d_distCentroids[id]=euclideanDistance(&d_centroids[id*d_samples], &d_auxCentroids[id*d_samples], d_samples);
+        d_distCentroids[id]=d_euclideanDistance(&d_centroids[id*d_samples], &d_auxCentroids[id*d_samples], d_samples);
         if(d_distCentroids[id]>*d_maxDist) {
             *d_maxDist=d_distCentroids[id];
         }
