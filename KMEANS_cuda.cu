@@ -196,17 +196,6 @@ __device__ float euclideanDistance(float *point, float *center, int samples)
 	return(dist);
 }
 
-float euclideanDistance_try(float *point, float *center, int samples)
-{
-	float dist=0.0;
-	for(int i=0; i<samples; i++) 
-	{
-		dist+= (point[i]-center[i])*(point[i]-center[i]);
-	}
-	dist = sqrt(dist);
-	return(dist);
-}
-
 /*
 Function zeroFloatMatriz: Set matrix elements to 0
 This function could be modified
@@ -292,14 +281,14 @@ __global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroid
 	}
 }
 
-__global__ void max(float* d_maxDist, float* d_distCentroids, int* d_centroids, int* d_auxCentroids){
+__global__ void max(float* d_maxDist, float* d_distCentroids, float* d_centroids, float* d_auxCentroids){
 	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
 							threadIdx.x;
 	if(thread_index < gpu_K){
 		d_distCentroids[thread_index]=euclideanDistance(&d_centroids[thread_index*gpu_samples], &d_auxCentroids[thread_index*gpu_samples], gpu_samples);
-		if(d_distCentroids[i]>maxDist) {
-			d_maxDist=d_distCentroids[i];
+		if(d_distCentroids[thread_index]>d_maxDist) {
+			d_maxDist=d_distCentroids[thread_index];
 		}
 	}
 }
@@ -514,7 +503,7 @@ int main(int argc, char* argv[])
 
 		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 		
-		CHECK_CUDA_CALL( cudaMemset(maxDist_d, FLT_MIN, sizeof(float)) );
+		CHECK_CUDA_CALL( cudaMemset(d_maxDist, FLT_MIN, sizeof(float)) );
 		max<<<dyn_grid_pts, gen_block>>>(d_maxDist, d_distCentroids, d_centroids, d_auxCentroids);
 		CHECK_CUDA_LAST();
 
