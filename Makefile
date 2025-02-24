@@ -52,7 +52,6 @@ KMEANS_mpi: KMEANS_mpi.c
 KMEANS_cuda: KMEANS_cuda.cu
 	nvcc -arch=sm_75 KMEANS_cuda.cu -o KMEANS_cuda -I/usr/lib/x86_64-linux-gnu/openmpi/include -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
 
-
 # Remove the target files
 clean:
 	rm -rf $(OBJS)

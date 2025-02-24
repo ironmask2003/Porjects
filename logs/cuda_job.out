@@ -1,0 +1,17 @@
+
+	Data file: ./test_files/input100D.inp 
+	Points: 10000
+	Dimensions: 100
+	Number of clusters: 40
+	Maximum number of iterations: 100
+	Minimum number of changes: 100 [1% of 10000 points]
+	Maximum centroid precision: 0.000100
+
+Memory allocation: 0.106318 seconds
+
+[1] Cluster changes: 1024	Max. centroid distance: 616.192993
+[2] Cluster changes: 352	Max. centroid distance: 165.082916
+[3] Cluster changes: 224	Max. centroid distance: 149.328568
+[4] Cluster changes: 224	Max. centroid distance: 156.203979
+[5] Cluster changes: 96	Max. centroid distance: 73.926247
+Computation: 0.037552 seconds
