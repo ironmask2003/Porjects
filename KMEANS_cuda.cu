@@ -452,7 +452,6 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
 
 		CHECK_CUDA_CALL(cudaMemset(d_changes, 0, sizeof(int)));
-		changes = 0;
 
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
