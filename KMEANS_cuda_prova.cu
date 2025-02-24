@@ -230,21 +230,21 @@ void zeroIntArray(int *array, int size)
 }
 
 // Variabili globali
-__costant__ int d_K;
-__costant__ int d_samples;
-__costant__ int d_lines;
+__constant__ int d_K;
+__constant__ int d_samples;
+__constant__ int d_lines;
 
 __global__ void assign_centroid(float *d_data, float *d_centroids, int *d_classMap, int* changes, int* class_var){
     int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
 							threadIdx.x;
 
-	if(thread_index < gpu_lines) {
+	if(thread_index < d_lines) {
 		float dist, minDist=FLT_MAX;
 
-		for(int j=0; j<gpu_K; j++)
+		for(int j=0; j<d_K; j++)
 		{
-			dist=euclideanDistance(&d_data[thread_index*gpu_samples], &d_centroids[j*gpu_samples], gpu_samples);
+			dist=euclideanDistance(&d_data[thread_index*d_samples], &d_centroids[j*d_samples], d_samples);
 
 			if(dist < minDist)
 			{
