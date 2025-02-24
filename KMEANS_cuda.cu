@@ -272,11 +272,16 @@ __global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroid
 			atomicAdd(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[thread_index*gpu_samples+j]);
 		}
 	}
+}
 
-	for(int i=0; i<gpu_K; i++) 
-	{
+__global__ void third_func(float* d_auxCentroids, int* d_pointsPerClass){
+	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
+							(threadIdx.y * blockDim.x) +
+							threadIdx.x;
+	
+	if(thread_index < gpu_K){
 		for(int j=0; j<gpu_samples; j++){
-			d_auxCentroids[i*gpu_samples+j] /= d_pointsPerClass[i];
+			d_auxCentroids[thread_index*gpu_samples+j] /= d_pointsPerClass[thread_index];
 		}
 	}
 }
@@ -494,6 +499,11 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
 		second_func<<<dimGrid, dimBlock, K*samples*sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass);
+		CHECK_CUDA_LAST();
+
+		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
+
+		third_func<<<dimGrid, dimBlock>>>(d_auxCentroids, d_pointsPerClass);
 		CHECK_CUDA_LAST();
 
 		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
