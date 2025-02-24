@@ -503,7 +503,8 @@ int main(int argc, char* argv[])
 	//START CLOCK***************************************
 	start = omp_get_wtime();
 	//**************************************************
-
+	
+	printf("Term condition print\n");
 	
 
 	if (changes <= minChanges) {

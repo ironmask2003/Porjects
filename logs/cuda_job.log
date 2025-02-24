@@ -241,3 +241,192 @@
 
 	Job terminated of its own accord at 2025-02-24T17:49:15Z with signal 6.
 ...
+000 (374713.000.000) 2025-02-24 17:57:36 Job submitted from host: <192.168.0.102:9618?addrs=192.168.0.102-9618&alias=submitter&noUDP&sock=schedd_4045053_7bc0>
+...
+001 (374713.000.000) 2025-02-24 17:57:37 Job executing on host: <192.168.0.126:9618?addrs=192.168.0.126-9618&alias=node126.di.rm1&noUDP&sock=startd_2976_ddef>
+...
+006 (374713.000.000) 2025-02-24 17:57:37 Image size of job updated: 750
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (374713.000.000) 2025-02-24 17:57:37 Job terminated.
+	(0) Abnormal termination (signal 6)
+	(0) No core file
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :      750      750    160102 
+	   Gpus (Average)       :                 1         1 "GPU-760a30db"
+	   Memory (MB)          :        0        1       128 
+
+	Job terminated of its own accord at 2025-02-24T17:57:37Z with signal 6.
+...
+000 (374714.000.000) 2025-02-24 18:03:12 Job submitted from host: <192.168.0.102:9618?addrs=192.168.0.102-9618&alias=submitter&noUDP&sock=schedd_4045053_7bc0>
+...
+001 (374714.000.000) 2025-02-24 18:03:12 Job executing on host: <192.168.0.126:9618?addrs=192.168.0.126-9618&alias=node126.di.rm1&noUDP&sock=startd_2976_ddef>
+...
+006 (374714.000.000) 2025-02-24 18:03:13 Image size of job updated: 750
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (374714.000.000) 2025-02-24 18:03:13 Job terminated.
+	(0) Abnormal termination (signal 6)
+	(0) No core file
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :      750      750    160102 
+	   Gpus (Average)       :                 1         1 "GPU-760a30db"
+	   Memory (MB)          :        0        1       128 
+
+	Job terminated of its own accord at 2025-02-24T18:03:13Z with signal 6.
+...
+000 (374715.000.000) 2025-02-24 19:30:43 Job submitted from host: <192.168.0.102:9618?addrs=192.168.0.102-9618&alias=submitter&noUDP&sock=schedd_4045053_7bc0>
+...
+001 (374715.000.000) 2025-02-24 19:30:43 Job executing on host: <192.168.0.123:9618?addrs=192.168.0.123-9618&alias=node123.di.rm1&noUDP&sock=startd_2149_9d1d>
+...
+006 (374715.000.000) 2025-02-24 19:30:44 Image size of job updated: 11652
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (374715.000.000) 2025-02-24 19:30:44 Job terminated.
+	(0) Abnormal termination (signal 6)
+	(0) No core file
+		Usr 0 00:00:01, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:01, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :      750      750    499844 
+	   Gpus (Average)       :                 1         1 "GPU-8c26d391"
+	   Memory (MB)          :        0        1       128 
+
+	Job terminated of its own accord at 2025-02-24T19:30:44Z with signal 6.
+...
+000 (374716.000.000) 2025-02-24 19:35:13 Job submitted from host: <192.168.0.102:9618?addrs=192.168.0.102-9618&alias=submitter&noUDP&sock=schedd_4045053_7bc0>
+...
+001 (374716.000.000) 2025-02-24 19:35:13 Job executing on host: <192.168.0.123:9618?addrs=192.168.0.123-9618&alias=node123.di.rm1&noUDP&sock=startd_2149_9d1d>
+...
+006 (374716.000.000) 2025-02-24 19:35:14 Image size of job updated: 11652
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (374716.000.000) 2025-02-24 19:35:14 Job terminated.
+	(0) Abnormal termination (signal 6)
+	(0) No core file
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :      750      750    499844 
+	   Gpus (Average)       :                 1         1 "GPU-8c26d391"
+	   Memory (MB)          :        0        1       128 
+
+	Job terminated of its own accord at 2025-02-24T19:35:14Z with signal 6.
+...
+000 (374717.000.000) 2025-02-24 19:37:24 Job submitted from host: <192.168.0.102:9618?addrs=192.168.0.102-9618&alias=submitter&noUDP&sock=schedd_4045053_7bc0>
+...
+001 (374717.000.000) 2025-02-24 19:37:34 Job executing on host: <192.168.0.123:9618?addrs=192.168.0.123-9618&alias=node123.di.rm1&noUDP&sock=startd_2149_9d1d>
+...
+006 (374717.000.000) 2025-02-24 19:37:35 Image size of job updated: 11652
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (374717.000.000) 2025-02-24 19:37:35 Job terminated.
+	(0) Abnormal termination (signal 6)
+	(0) No core file
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :      750      750    499844 
+	   Gpus (Average)       :                 1         1 "GPU-8c26d391"
+	   Memory (MB)          :        0        1       128 
+
+	Job terminated of its own accord at 2025-02-24T19:37:35Z with signal 6.
+...
+000 (374718.000.000) 2025-02-24 19:38:32 Job submitted from host: <192.168.0.102:9618?addrs=192.168.0.102-9618&alias=submitter&noUDP&sock=schedd_4045053_7bc0>
+...
+001 (374718.000.000) 2025-02-24 19:38:33 Job executing on host: <192.168.0.123:9618?addrs=192.168.0.123-9618&alias=node123.di.rm1&noUDP&sock=startd_2149_9d1d>
+...
+006 (374718.000.000) 2025-02-24 19:38:33 Image size of job updated: 11784
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (374718.000.000) 2025-02-24 19:38:33 Job terminated.
+	(0) Abnormal termination (signal 6)
+	(0) No core file
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :      750      750    499844 
+	   Gpus (Average)       :                 1         1 "GPU-8c26d391"
+	   Memory (MB)          :        0        1       128 
+
+	Job terminated of its own accord at 2025-02-24T19:38:33Z with signal 6.
+...
+000 (375351.000.000) 2025-02-24 22:37:39 Job submitted from host: <192.168.0.102:9618?addrs=192.168.0.102-9618&alias=submitter&noUDP&sock=schedd_4045053_7bc0>
+...
+001 (375351.000.000) 2025-02-24 22:37:58 Job executing on host: <192.168.0.126:9618?addrs=192.168.0.126-9618&alias=node126.di.rm1&noUDP&sock=startd_2976_ddef>
+...
+006 (375351.000.000) 2025-02-24 22:37:59 Image size of job updated: 750
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (375351.000.000) 2025-02-24 22:37:59 Job terminated.
+	(0) Abnormal termination (signal 6)
+	(0) No core file
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :      750      750    160102 
+	   Gpus (Average)       :                 1         1 "GPU-760a30db"
+	   Memory (MB)          :        0        1       128 
+
+	Job terminated of its own accord at 2025-02-24T22:37:59Z with signal 6.
+...
