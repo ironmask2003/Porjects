@@ -481,6 +481,9 @@ int main(int argc, char* argv[])
         // Copy d_centroids in centroids
         CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
 
+        // Syncronize the device
+        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
+        
         max<<<numBlocks2, blockSize>>>(d_centroids, d_auxCentroids, d_maxDist, d_distCentroids);
         CHECK_CUDA_LAST();
         // Syncronize the device
