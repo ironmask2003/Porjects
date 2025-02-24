@@ -234,7 +234,7 @@ __constant__ int d_K;
 __constant__ int d_samples;
 __constant__ int d_lines;
 
-__global__ void assign_centroid(float *d_data, float *d_centroids, int *d_classMap, int* changes, int* class_var){
+__global__ void assign_centroids(float *d_data, float *d_centroids, int *d_classMap, int* changes, int* class_var){
     int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
 							threadIdx.x;
