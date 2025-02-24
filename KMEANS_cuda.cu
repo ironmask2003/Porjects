@@ -257,19 +257,17 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 	}
 }
 
-__global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroids, int *d_pointsPerClass){
-
-	int class_var;
+__global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroids, int *d_pointsPerClass, int* class_var){
 
 	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
 							(threadIdx.y * blockDim.x) +
 							threadIdx.x;
 
 	if(thread_index < gpu_lines){
-		class_var=d_classMap[thread_index];
-		d_pointsPerClass[class_var-1] = d_pointsPerClass[class_var-1] +1;
+		*class_var=d_classMap[thread_index];
+		d_pointsPerClass[*class_var-1] = d_pointsPerClass[*class_var-1] +1;
 		for(int j=0; j<gpu_samples; j++){
-			atomicAdd(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[thread_index*gpu_samples+j]);
+			atomicAdd(&d_auxCentroids[(*class_var-1)*gpu_samples+j], d_data[thread_index*gpu_samples+j]);
 		}
 	}
 }
@@ -488,9 +486,6 @@ int main(int argc, char* argv[])
 		assign_centroids<<<dimGrid, dimBlock, K*samples*sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
 		CHECK_CUDA_LAST();
 
-		CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) );
-		CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
-
 		// Syncronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
@@ -498,7 +493,7 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
 		CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
-		second_func<<<dimGrid, dimBlock, K*samples*sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass);
+		second_func<<<dimGrid, dimBlock, K*samples*sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass, d_class_var);
 		CHECK_CUDA_LAST();
 
 		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
@@ -516,6 +511,8 @@ int main(int argc, char* argv[])
 
 		CHECK_CUDA_CALL( cudaMemcpy(centroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) )
 		CHECK_CUDA_CALL( cudaMemcpy(&maxDist, d_maxDist, sizeof(float), cudaMemcpyDeviceToHost) );
+		CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
+		CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) );
 		
 		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
 		outputMsg = strcat(outputMsg,line);
