@@ -279,13 +279,13 @@ __global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroid
 	if(thread_index < gpu_lines){
 		class_var=d_classMap[i];
 		d_pointsPerClass[class_var-1] = d_pointsPerClass[class_var-1] +1;
-		for(j=0; j<gpu_samples; j++){
-			atomic_add(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[i*gpu_samples+j]);
+		for(int j=0; j<gpu_samples; j++){
+			atomicAdd(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[i*gpu_samples+j]);
 		}
 
-		for(i=0; i<gpu_K; i++) 
+		for(int i=0; i<gpu_K; i++) 
 		{
-			for(j=0; j<gpu_samples; j++){
+			for(int j=0; j<gpu_samples; j++){
 				d_auxCentroids[i*gpu_samples+j] /= d_pointsPerClass[i];
 			}
 		}
