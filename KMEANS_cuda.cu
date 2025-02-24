@@ -542,6 +542,8 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMemcpy(centroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) )
 	CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
 
+	printf("ciao\n");
+
 	cudaFree(d_data);
 	cudaFree(d_classMap);
 	cudaFree(d_centroids);
