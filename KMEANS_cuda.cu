@@ -465,8 +465,9 @@ int main(int argc, char* argv[])
 		// Syncronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
-		CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
+		// 2. Recalculates the centroids: calculates the mean within each cluster
+		zeroIntArray(pointsPerClass,K);
+		zeroFloatMatriz(auxCentroids,K,samples);
 
 		for(i=0; i<lines; i++) 
 		{
