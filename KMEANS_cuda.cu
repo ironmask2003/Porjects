@@ -287,8 +287,8 @@ __global__ void max(float* d_maxDist, float* d_distCentroids, float* d_centroids
 							threadIdx.x;
 	if(thread_index < gpu_K){
 		d_distCentroids[thread_index]=euclideanDistance(&d_centroids[thread_index*gpu_samples], &d_auxCentroids[thread_index*gpu_samples], gpu_samples);
-		if(d_distCentroids[thread_index]>d_maxDist) {
-			d_maxDist=d_distCentroids[thread_index];
+		if(d_distCentroids[thread_index]>*d_maxDist) {
+			*d_maxDist=d_distCentroids[thread_index];
 		}
 	}
 }
