@@ -481,12 +481,6 @@ int main(int argc, char* argv[])
 
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 
-    cudaFree(d_data);
-	cudaFree(d_classMap);
-	cudaFree(d_centroids);
-	cudaFree(d_changes);
-	cudaFree(d_class_var);
-
 /*
  *
  * STOP HERE: DO NOT CHANGE THE CODE BELOW THIS POINT
