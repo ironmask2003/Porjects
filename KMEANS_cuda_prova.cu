@@ -425,7 +425,6 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
 		CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
-        CHECK_CUDA_CALL( cudaMemset(d_class_var, 1, sizeof(int)) );
 
         CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 		CHECK_CUDA_CALL( cudaMemcpy(d_classMap, classMap, lines*sizeof(int), cudaMemcpyHostToDevice) );
