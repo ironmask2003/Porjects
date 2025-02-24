@@ -542,6 +542,16 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMemcpy(centroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) )
 	CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
 
+	cudaFree(d_data);
+	cudaFree(d_classMap);
+	cudaFree(d_centroids);
+	cudaFree(d_pointsPerClass);
+	cudaFree(d_auxCentroids);
+	cudaFree(d_distCentroids);
+	cudaFree(d_changes);
+	cudaFree(d_class_var);
+	cudaFree(d_maxDist);
+
 /*
  *
  * STOP HERE: DO NOT CHANGE THE CODE BELOW THIS POINT
