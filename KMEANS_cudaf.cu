@@ -269,12 +269,12 @@ __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCe
     }
 }
 
-__global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass, float* d_centroids){
+__global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
     if (id < d_K){
         for(int j=0; j<d_samples; j++){
-            d_centroids[id*d_samples+j] /= d_pointsPerClass[id];
+            d_auxCentroids[id*d_samples+j] /= d_pointsPerClass[id];
         }
     }
 }
@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
-		third_step<<<numBlocks2, blockSize>>>(d_auxCentroids, d_pointsPerClass, d_centroids);
+		third_step<<<numBlocks2, blockSize>>>(d_auxCentroids, d_pointsPerClass);
         CHECK_CUDA_LAST();
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
