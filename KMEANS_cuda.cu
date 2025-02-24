@@ -268,6 +268,30 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 	}
 }
 
+__global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroids, int *d_pointsPerClass){
+
+	int class_var;
+
+	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
+							(threadIdx.y * blockDim.x) +
+							threadIdx.x;
+
+	if(thread_index < gpu_lines){
+		class_var=d_classMap[i];
+		d_pointsPerClass[class_var-1] = d_pointsPerClass[class_var-1] +1;
+		for(j=0; j<gpu_samples; j++){
+			atomic_add(&d_auxCentroids[(class_var-1)*gpu_samples+j], d_data[i*gpu_samples+j]);
+		}
+
+		for(i=0; i<gpu_K; i++) 
+		{
+			for(j=0; j<gpu_samples; j++){
+				d_auxCentroids[i*gpu_samples+j] /= d_pointsPerClass[i];
+			}
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -466,24 +490,14 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
-		zeroIntArray(pointsPerClass,K);
-		zeroFloatMatriz(auxCentroids,K,samples);
+		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
+		CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
-		for(i=0; i<lines; i++) 
-		{
-			class_var=classMap[i];
-			pointsPerClass[class_var-1] = pointsPerClass[class_var-1] +1;
-			for(j=0; j<samples; j++){
-				auxCentroids[(class_var-1)*samples+j] += data[i*samples+j];
-			}
-		}
+		second_func<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass);
+		CHECK_CUDA_LAST();
 
-		for(i=0; i<K; i++) 
-		{
-			for(j=0; j<samples; j++){
-				auxCentroids[i*samples+j] /= pointsPerClass[i];
-			}
-		}
+		CHECK_CUDA_CALL( cudaMemcpy(pointsPerClass, d_pointsPerClass, K*sizeof(int), cudaMemcpyDeviceToHost) );
+		CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
 		
 		maxDist=FLT_MIN;
 		for(i=0; i<K; i++){
