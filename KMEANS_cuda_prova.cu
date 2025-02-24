@@ -245,7 +245,7 @@ __global__ void assign_centroids(float *d_data, float *d_centroids, int *d_class
 
 		for(int j=0; j<d_K; j++)
 		{
-			dist=euclideanDistance(&d_data[thread_index*d_samples], &d_centroids[j*d_samples], d_samples);
+			dist=euclideanDistance_gpu(&d_data[thread_index*d_samples], &d_centroids[j*d_samples], d_samples);
 
 			if(dist < minDist)
 			{
