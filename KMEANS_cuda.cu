@@ -423,18 +423,10 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_samples, &samples, sizeof(int)));
 	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_lines, &lines, sizeof(int)));
 
-	// Adapt to the number of points
-	int pts_grid_size = lines / (32 * 32) + 1;
-	int K_grid_size = K / (32 * 32) + 1;
-
 	// Set carveout to be of maximum size available
 	int carveout = cudaSharedmemCarveoutMaxShared;
 
 	CHECK_CUDA_CALL(cudaFuncSetAttribute(assign_centroids, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
-
-	dim3 gen_block(32, 32);
-	dim3 dyn_grid_pts(pts_grid_size);
-	dim3 dyn_grid_cent(K_grid_size);
 
 	// Copy data to device
 	float *d_data;
@@ -474,6 +466,9 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMalloc(&d_maxDist, sizeof(float)) );
 	CHECK_CUDA_CALL( cudaMemcpy(d_maxDist, &maxDist, sizeof(float), cudaMemcpyHostToDevice) );
 
+	dim3 dimBlock(64);
+	dim3 dimGrid(72);
+
 	do{
 		it++;
 	
@@ -485,7 +480,7 @@ int main(int argc, char* argv[])
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-		assign_centroids<<<dyn_grid_pts, gen_block, lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
+		assign_centroids<<<dimGrid, dimBlock, K*samples*sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
 		CHECK_CUDA_LAST();
 
 		CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) );
@@ -498,13 +493,13 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
 		CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
-		second_func<<<dyn_grid_pts, gen_block, lines * sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass);
+		second_func<<<dimGrid, dimBlock, K*samples*sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass);
 		CHECK_CUDA_LAST();
 
 		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 		
 		CHECK_CUDA_CALL( cudaMemset(d_maxDist, FLT_MIN, sizeof(float)) );
-		max<<<dyn_grid_pts, gen_block>>>(d_maxDist, d_distCentroids, d_centroids, d_auxCentroids);
+		max<<<dimGrid, dimBlock>>>(d_maxDist, d_distCentroids, d_centroids, d_auxCentroids);
 		CHECK_CUDA_LAST();
 
 		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
