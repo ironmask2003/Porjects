@@ -539,9 +539,6 @@ int main(int argc, char* argv[])
 
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 
-	CHECK_CUDA_CALL( cudaMemcpy(centroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) )
-	CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
-
 	cudaFree(d_data);
 	cudaFree(d_classMap);
 	cudaFree(d_centroids);
@@ -565,7 +562,6 @@ int main(int argc, char* argv[])
 	//END CLOCK*****************************************
 	end = omp_get_wtime();
 	printf("\nComputation: %f seconds", end - start);
-	printf("print after comp\n");
 	fflush(stdout);
 	//**************************************************
 	//START CLOCK***************************************
