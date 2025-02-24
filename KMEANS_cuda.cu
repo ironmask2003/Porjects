@@ -292,6 +292,18 @@ __global__ void second_func(float *d_data, int *d_classMap, float *d_auxCentroid
 	}
 }
 
+__global__ void max(float* d_maxDist, float* d_distCentroids, int* d_centroids, int* d_auxCentroids){
+	int thread_index = (blockIdx.y * gridDim.x * blockDim.x * blockDim.y) + (blockIdx.x * blockDim.x * blockDim.y) +
+							(threadIdx.y * blockDim.x) +
+							threadIdx.x;
+	if(thread_index < gpu_K){
+		d_distCentroids[thread_index]=euclideanDistance(&d_centroids[thread_index*gpu_samples], &d_auxCentroids[thread_index*gpu_samples], gpu_samples);
+		if(d_distCentroids[i]>maxDist) {
+			d_maxDist=d_distCentroids[i];
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -423,7 +435,7 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL(cudaMemcpyToSymbol(gpu_lines, &lines, sizeof(int)));
 
 	// Adapt to the number of points
-	int pts_grid_size = samples / (32 * 32) + 1;
+	int pts_grid_size = lines / (32 * 32) + 1;
 	int K_grid_size = K / (32 * 32) + 1;
 
 	// Set carveout to be of maximum size available
@@ -444,6 +456,7 @@ int main(int argc, char* argv[])
 	float *d_distCentroids;
 	int *d_changes;
 	int *d_class_var;
+	float *d_maxDist;
 
 	CHECK_CUDA_CALL( cudaMalloc(&d_data, lines*samples*sizeof(float)) );
 	CHECK_CUDA_CALL( cudaMemcpy(d_data, data, lines*samples*sizeof(float), cudaMemcpyHostToDevice) );
@@ -469,6 +482,9 @@ int main(int argc, char* argv[])
 	CHECK_CUDA_CALL( cudaMalloc(&d_class_var, sizeof(int)) );
 	CHECK_CUDA_CALL( cudaMemcpy(d_class_var, &class_var, sizeof(int), cudaMemcpyHostToDevice) );
 
+	CHECK_CUDA_CALL( cudaMalloc(&d_maxDist, sizeof(float)) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_maxDist, &maxDist, sizeof(float), cudaMemcpyHostToDevice) );
+
 	do{
 		it++;
 	
@@ -480,7 +496,7 @@ int main(int argc, char* argv[])
 		// Synschronize
 		CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
-		assign_centroids<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
+		assign_centroids<<<dyn_grid_pts, gen_block, lines * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_class_var);
 		CHECK_CUDA_LAST();
 
 		CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) );
@@ -493,20 +509,19 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
 		CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
-		second_func<<<dyn_grid_pts, gen_block, K * lines * sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass);
+		second_func<<<dyn_grid_pts, gen_block, lines * sizeof(float)>>>(d_data, d_classMap, d_auxCentroids, d_pointsPerClass);
 		CHECK_CUDA_LAST();
 
-		CHECK_CUDA_CALL( cudaMemcpy(pointsPerClass, d_pointsPerClass, K*sizeof(int), cudaMemcpyDeviceToHost) );
-		CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
+		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 		
-		maxDist=FLT_MIN;
-		for(i=0; i<K; i++){
-			distCentroids[i]=euclideanDistance_try(&centroids[i*samples], &auxCentroids[i*samples], samples);
-			if(distCentroids[i]>maxDist) {
-				maxDist=distCentroids[i];
-			}
-		}
-		memcpy(centroids, auxCentroids, (K*samples*sizeof(float)));
+		CHECK_CUDA_CALL( cudaMemset(maxDist_d, FLT_MIN, sizeof(float)) );
+		max<<<dyn_grid_pts, gen_block>>>(d_maxDist, d_distCentroids, d_centroids, d_auxCentroids);
+		CHECK_CUDA_LAST();
+
+		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
+
+		CHECK_CUDA_CALL( cudaMemcpy(centroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) )
+		CHECK_CUDA_CALL( cudaMemcpy(&maxDist, d_maxDist, sizeof(float), cudaMemcpyDeviceToHost) );
 		
 		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
 		outputMsg = strcat(outputMsg,line);
