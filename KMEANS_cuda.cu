@@ -231,7 +231,6 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
     if (id < d_lines) {
         int vclass = 1;
         float minDist = FLT_MAX;
-		#pragma omp parallel for reduction(min:minDist) reduction(+:vclass)
         for (int j = 0; j < d_K; j++) {
             float dist = 0.0;
             dist = d_euclideanDistance(&d_data[id * d_samples], &d_centroids[j * d_samples], d_samples);
@@ -436,12 +435,9 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMemcpy(d_auxCentroids, auxCentroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 
     // Set of the grid and block dimensions
-    dim3 blockSize(1024);
-    dim3 numBlocks(ceil(static_cast<float>(lines) / blockSize.x));
-
-    printf("\nNumBlocks: %d\n", numBlocks.x);
-
-    dim3 numBlocks2(ceil(static_cast<float>(K) / blockSize.x));
+    dim3 blockSize(32, 32);
+	dim3 numBlocks(ceil(static_cast<float>(lines) / (blockSize.x * blockSize.y)));
+    dim3 numBlocks2(ceil(static_cast<float>(K) / (blockSize.x * blockSize.y)));
 
 	do{
 		it++;
