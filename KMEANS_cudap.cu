@@ -236,7 +236,7 @@ __constant__ int d_K;
 __constant__ int d_lines;
 
 // Kernel per il calcolo della distanza euclidea
-__global__ void assign_centroids(float* d_data, float* d_centroids, int* d_classMap, int* d_changes){
+__global__ void assign_centroids(float* d_data, float* d_centroids, int* d_classMap, int* d_changes, int *it){
 	extern __shared__ float shared_centroids[];
 
 	int id = (blockIdx.x * blockDim.x) + threadIdx.x;
@@ -265,7 +265,7 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
 		d_classMap[id] = vclass;
 	}
 
-	if(id == d_lines) {
+	if(id == d_lines && *it == 9) {
 		// Print di d_classMap
 		for (int i = 0; i < d_lines; i++) {
 			printf("%d ", d_classMap[i]);
@@ -447,6 +447,7 @@ int main(int argc, char* argv[])
     float *d_distCentroids;
     float *d_maxDist;
     int *d_changes;
+	int* d_it;
 
     // Memory allocation on the device
     CHECK_CUDA_CALL( cudaMalloc(&d_data, lines*samples*sizeof(float)) );
@@ -457,6 +458,7 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMalloc(&d_distCentroids, K*sizeof(float)) );
     CHECK_CUDA_CALL( cudaMalloc(&d_maxDist, sizeof(float)) );
     CHECK_CUDA_CALL( cudaMalloc(&d_changes, sizeof(int)) );
+	CHECK_CUDA_CALL( cudaMalloc(&d_it, sizeof(int)) );
 
     // Copy data to the device
     CHECK_CUDA_CALL( cudaMemcpy(d_data, data, lines*samples*sizeof(float), cudaMemcpyHostToDevice) );
@@ -475,12 +477,13 @@ int main(int argc, char* argv[])
 	do{
 		it++;
 		printf("\nIteration %d\n", it);
+		CHECK_CUDA_CALL( cudaMemcpy(d_it, &it, sizeof(int), cudaMemcpyHostToDevice) );
 		
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
         CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
 
-        assign_centroids<<<numBlocks, blockSize, K * samples * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes);
+        assign_centroids<<<numBlocks, blockSize, K * samples * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes, d_it);
         CHECK_CUDA_LAST();
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
