@@ -268,6 +268,18 @@ __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass){
     }
 }
 
+__device__ float atomicMax(float* address, float val) {
+    int* address_as_i = (int*)address;
+    int old = *address_as_i, assumed;
+
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_i, assumed, __float_as_int(fmaxf(val, __int_as_float(assumed))));
+    } while (assumed != old);
+
+    return __int_as_float(old);
+}
+
 __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist, float* d_distCentroids){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
