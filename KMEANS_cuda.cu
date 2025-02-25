@@ -458,7 +458,6 @@ int main(int argc, char* argv[])
 
         // Copy d_changes in changes
         CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) )
-        CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
 
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
