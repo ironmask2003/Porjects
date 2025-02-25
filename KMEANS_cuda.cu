@@ -443,7 +443,7 @@ int main(int argc, char* argv[])
 
     printf("\nNumBlocks: %d\n", numBlocks.x);
 
-    dim3 numBlocks2((K + blockSize.x - 1) / blockSize.x);
+    dim3 numBlocks2(ceil(static_cast<float>(K) / blockSize.x));
 
 	do{
 		it++;
@@ -452,6 +452,8 @@ int main(int argc, char* argv[])
 		//Assign each point to the nearest centroid.
         CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
         CHECK_CUDA_CALL( cudaMemset(d_maxDist, FLT_MIN, sizeof(float)) );
+		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
+        CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
         assign_centroids<<<numBlocks, blockSize>>>(d_data, d_centroids, d_classMap, d_changes);
         CHECK_CUDA_LAST();
@@ -459,12 +461,6 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
-        CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
-        CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
-
-		// Syncronize the device
-        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
-
         second_step<<<numBlocks, blockSize>>>(d_data, d_pointsPerClass, d_auxCentroids, d_classMap);
         CHECK_CUDA_LAST();
         // Syncronize the device
