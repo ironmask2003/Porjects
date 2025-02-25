@@ -273,9 +273,7 @@ __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist,
 
     if (id < d_K){
         d_distCentroids[id]=d_euclideanDistance(&d_centroids[id*d_samples], &d_auxCentroids[id*d_samples], d_samples);
-        if(d_distCentroids[id]>*d_maxDist) {
-            *d_maxDist=d_distCentroids[id];
-        }
+        atomicMax((int*)d_maxDist, __float_as_int(d_distCentroids[id]));
     }
 }
 
