@@ -435,11 +435,9 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMemcpy(d_auxCentroids, auxCentroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 
     // Set of the grid and block dimensions
-    dim3 blockSize(32, 32);
-	dim3 numBlocks(ceil(static_cast<float>(lines) / (blockSize.x * blockSize.y)));
-	
-	printf("\nNumBlocks: %d\n", numBlocks.x);
-	
+    dim3 blockSize(64);
+	dim3 numBlocks(72);
+	//dim3 numBlocks(ceil(static_cast<float>(lines) / (blockSize.x * blockSize.y)));
     dim3 numBlocks2(ceil(static_cast<float>(K) / (blockSize.x * blockSize.y)));
 
 	do{
