@@ -497,7 +497,7 @@ int main(int argc, char* argv[])
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 
     // Copy d_classMap in classMap
-    // CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
+    CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
 
 /*
  *
