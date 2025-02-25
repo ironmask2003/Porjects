@@ -439,7 +439,7 @@ int main(int argc, char* argv[])
 
     // Set of the grid and block dimensions
     dim3 blockSize(1024);
-    dim3 numBlocks((lines + blockSize.x - 1) / blockSize.x);
+    dim3 numBlocks((lines) / blockSize.x + 1);
 
     printf("\nNumBlocks: %d\n", numBlocks.x);
 
