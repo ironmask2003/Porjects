@@ -249,7 +249,7 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
             }
         }
         if (d_classMap[id] != vclass) {
-            d_changes ++;
+            atomicAdd(d_changes, 1);
         }
         d_classMap[id] = vclass;
     }
@@ -262,7 +262,7 @@ __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCe
         int vclass=d_classMap[id];
         atomicAdd(&d_pointsPerClass[vclass-1], 1);
         for(int j=0; j<d_samples; j++){
-            d_auxCentroids[(vclass-1)*d_samples+j] += d_data[id*d_samples+j];
+            atomicAdd(&d_auxCentroids[(vclass-1)*d_samples+j], d_data[id*d_samples+j]);
         }
     }
 }
@@ -445,7 +445,7 @@ int main(int argc, char* argv[])
 
     // Set of the grid and block dimensions
     dim3 blockSize(256);
-    dim3 numBlocks(ceil(static_cast<float>(lines) / blockSize.x));
+    dim3 numBlocks(ceil((static_cast<float>(lines) / blockSize.x)/2));
 
     printf("\nNumBlocks: %d\n", numBlocks.x);
 
