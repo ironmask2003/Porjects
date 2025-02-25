@@ -456,12 +456,6 @@ int main(int argc, char* argv[])
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
-        // Copy d_changes in changes
-        CHECK_CUDA_CALL( cudaMemcpy(&changes, d_changes, sizeof(int), cudaMemcpyDeviceToHost) )
-
-        // Syncronize the device
-        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
-
 		// 2. Recalculates the centroids: calculates the mean within each cluster
         CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
         CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
