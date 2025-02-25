@@ -333,6 +333,8 @@ int main(int argc, char* argv[])
  *
  */
 
+	printf("lines %d\n", lines);
+
 	do{
 		it++;
 	

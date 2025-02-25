@@ -7,4 +7,5 @@ def check_out(file1, file2):
     return True
 
 if __name__ == "__main__":
-    print(check_out("output_files/seq/output100D.txt", "output_cuda.txt"))
+    inpt = input("Inserisci il test: ")
+    print(check_out(f"output_files/seq/output{inpt}.txt", "output_cuda.txt"))
