@@ -449,6 +449,7 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
         CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
+        CHECK_CUDA_CALL( cudaMemset(d_maxDist, FLT_MIN, sizeof(float)) );
 
         CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 
@@ -478,12 +479,6 @@ int main(int argc, char* argv[])
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
-        // Copy d_centroids in centroids
-        CHECK_CUDA_CALL( cudaMemcpy(auxCentroids, d_auxCentroids, K*samples*sizeof(float), cudaMemcpyDeviceToHost) );
-
-        // Syncronize the device
-        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
-        
         max<<<numBlocks2, blockSize>>>(d_centroids, d_auxCentroids, d_maxDist, d_distCentroids);
         CHECK_CUDA_LAST();
         // Syncronize the device
