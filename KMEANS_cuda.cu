@@ -249,7 +249,7 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
             }
         }
         if (d_classMap[id] != vclass) {
-            atomicAdd(d_changes, 1);
+            d_changes ++;
         }
         d_classMap[id] = vclass;
     }
@@ -262,7 +262,7 @@ __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCe
         int vclass=d_classMap[id];
         atomicAdd(&d_pointsPerClass[vclass-1], 1);
         for(int j=0; j<d_samples; j++){
-            atomicAdd(&d_auxCentroids[(vclass-1)*d_samples+j], d_data[id*d_samples+j]);
+            d_auxCentroids[(vclass-1)*d_samples+j] += d_data[id*d_samples+j];
         }
     }
 }
