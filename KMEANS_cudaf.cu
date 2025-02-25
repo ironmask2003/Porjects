@@ -461,8 +461,6 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
         CHECK_CUDA_CALL( cudaMemset(d_maxDist, FLT_MIN, sizeof(float)) );
 
-        CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
-
         assign_centroids<<<numBlocks, blockSize>>>(d_data, d_centroids, d_classMap, d_changes);
         CHECK_CUDA_LAST();
         // Syncronize the device
