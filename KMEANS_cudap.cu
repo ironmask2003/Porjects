@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
 
     // Set of the grid and block dimensions
     dim3 blockSize(1024);
-    dim3 numBlocks(100);
+    dim3 numBlocks((lines + blockSize.x - 1) / blockSize.x);
 
     // dim3 numBlocks2((K + blockSize.x - 1) / blockSize.x);
 
@@ -461,8 +461,6 @@ int main(int argc, char* argv[])
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
         CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
-
-        CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 
         assign_centroids<<<numBlocks, blockSize>>>(d_data, d_centroids, d_classMap, d_changes);
         CHECK_CUDA_LAST();
@@ -532,6 +530,7 @@ int main(int argc, char* argv[])
 			}
 		}
 		memcpy(centroids, auxCentroids, (K*samples*sizeof(float)));
+		CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 		
 		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
 		outputMsg = strcat(outputMsg,line);
