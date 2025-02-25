@@ -226,23 +226,14 @@ __constant__ int d_lines;
 
 // Kernel per il calcolo della distanza euclidea
 __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_classMap, int* d_changes){
-    extern __shared__ float s_centroids[];
-
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
-    int tid = threadIdx.x;
-
-    // Load centroids into shared memory
-    for (int j = tid; j < d_K * d_samples; j += blockDim.x) {
-        s_centroids[j] = d_centroids[j];
-    }
-    __syncthreads();
 
     if (id < d_lines) {
         int vclass = 1;
         float minDist = FLT_MAX;
         for (int j = 0; j < d_K; j++) {
             float dist = 0.0;
-            dist = d_euclideanDistance(&d_data[id * d_samples], &s_centroids[j * d_samples], d_samples);
+            dist = d_euclideanDistance(&d_data[id * d_samples], &d_centroids[j * d_samples], d_samples);
             if (dist < minDist) {
                 minDist = dist;
                 vclass = j + 1;
@@ -462,7 +453,7 @@ int main(int argc, char* argv[])
         CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
 		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
-        assign_centroids<<<numBlocks, blockSize, K * samples * sizeof(float)>>>(d_data, d_centroids, d_classMap, d_changes);
+        assign_centroids<<<numBlocks, blockSize>>>(d_data, d_centroids, d_classMap, d_changes);
         CHECK_CUDA_LAST();
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
