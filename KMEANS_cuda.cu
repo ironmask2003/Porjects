@@ -268,13 +268,13 @@ __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass){
     }
 }
 
-__global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist, float* d_distCentroids){
+__global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist){
     int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
     if (id < d_K){
-        d_distCentroids[id]=d_euclideanDistance(&d_centroids[id*d_samples], &d_auxCentroids[id*d_samples], d_samples);
-		if(d_distCentroids[id]>*d_maxDist) {
-            *d_maxDist=d_distCentroids[id];
+        float dist=d_euclideanDistance(&d_centroids[id*d_samples], &d_auxCentroids[id*d_samples], d_samples);
+		if(dist>*d_maxDist) {
+            *d_maxDist=dist;
         }
     }
 }
@@ -415,7 +415,6 @@ int main(int argc, char* argv[])
     float *d_centroids;
     int *d_pointsPerClass;
     float *d_auxCentroids;
-    float *d_distCentroids;
     float *d_maxDist;
     int *d_changes;
 
@@ -425,7 +424,6 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMalloc(&d_centroids, K*samples*sizeof(float)) );
     CHECK_CUDA_CALL( cudaMalloc(&d_pointsPerClass, K*sizeof(int)) );
     CHECK_CUDA_CALL( cudaMalloc(&d_auxCentroids, K*samples*sizeof(float)) );
-    CHECK_CUDA_CALL( cudaMalloc(&d_distCentroids, K*sizeof(float)) );
     CHECK_CUDA_CALL( cudaMalloc(&d_maxDist, sizeof(float)) );
     CHECK_CUDA_CALL( cudaMalloc(&d_changes, sizeof(int)) );
 
@@ -435,7 +433,6 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
     CHECK_CUDA_CALL( cudaMemcpy(d_pointsPerClass, pointsPerClass, K*sizeof(int), cudaMemcpyHostToDevice) );
     CHECK_CUDA_CALL( cudaMemcpy(d_auxCentroids, auxCentroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
-    CHECK_CUDA_CALL( cudaMemcpy(d_distCentroids, distCentroids, K*sizeof(float), cudaMemcpyHostToDevice) );
 
     // Set of the grid and block dimensions
     dim3 blockSize(1024);
@@ -471,7 +468,7 @@ int main(int argc, char* argv[])
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
-        max<<<numBlocks2, blockSize>>>(d_centroids, d_auxCentroids, d_maxDist, d_distCentroids);
+        max<<<numBlocks2, blockSize>>>(d_centroids, d_auxCentroids, d_maxDist);
         CHECK_CUDA_LAST();
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
@@ -545,7 +542,6 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaFree(d_centroids) );
     CHECK_CUDA_CALL( cudaFree(d_pointsPerClass) );
     CHECK_CUDA_CALL( cudaFree(d_auxCentroids) );
-    CHECK_CUDA_CALL( cudaFree(d_distCentroids) );
     CHECK_CUDA_CALL( cudaFree(d_maxDist) );
     CHECK_CUDA_CALL( cudaFree(d_changes) );
 

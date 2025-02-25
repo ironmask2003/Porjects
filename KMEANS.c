@@ -384,9 +384,9 @@ int main(int argc, char* argv[])
 		
 		maxDist=FLT_MIN;
 		for(i=0; i<K; i++){
-			distCentroids[i]=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
-			if(distCentroids[i]>maxDist) {
-				maxDist=distCentroids[i];
+			dist=euclideanDistance(&centroids[i*samples], &auxCentroids[i*samples], samples);
+			if(dist>maxDist) {
+				maxDist=dist;
 			}
 		}
 		memcpy(centroids, auxCentroids, (K*samples*sizeof(float)));
