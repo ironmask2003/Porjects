@@ -264,6 +264,10 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
 		}
 		d_classMap[id] = vclass;
 	}
+
+	if(id == d_lines) {
+		printf("All lines checked\n");
+	}
 }
 
 /*
