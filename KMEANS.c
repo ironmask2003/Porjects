@@ -362,6 +362,12 @@ int main(int argc, char* argv[])
 			classMap[i]=class;
 		}
 
+		// Print fi classMap
+		for(i=0; i<lines; i++) {
+		 	printf("%d ", classMap[i]);
+		}
+		// printf("\n");
+
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
 		zeroFloatMatriz(auxCentroids,K,samples);
