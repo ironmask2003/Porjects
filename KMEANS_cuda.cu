@@ -439,10 +439,10 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMemcpy(d_auxCentroids, auxCentroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 
     // Set of the grid and block dimensions
-    dim3 blockSize(64);
-	dim3 numBlocks(72);
+    dim3 blockSize(1024);
+	dim3 numBlocks(ceil(static_cast<float>(lines) / blockSize.x));
 	//dim3 numBlocks(ceil(static_cast<float>(lines) / (blockSize.x * blockSize.y)));
-    dim3 numBlocks2(ceil(static_cast<float>(K) / (blockSize.x * blockSize.y)));
+    dim3 numBlocks2(ceil(static_cast<float>(K) / blockSize.x));
 
 	do{
 		it++;
@@ -454,17 +454,37 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
         CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
+		// Syncronize the device
 		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
+
         assign_centroids<<<numBlocks, blockSize>>>(d_data, d_centroids, d_classMap, d_changes);
         CHECK_CUDA_LAST();
         // Syncronize the device
         CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
-        second_step<<<numBlocks, blockSize>>>(d_data, d_pointsPerClass, d_auxCentroids, d_classMap);
+        /* second_step<<<numBlocks, blockSize>>>(d_data, d_pointsPerClass, d_auxCentroids, d_classMap);
         CHECK_CUDA_LAST();
         // Syncronize the device
-        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
+        CHECK_CUDA_CALL( cudaDeviceSynchronize() ); */
+
+		// 2. Recalculates the centroids: calculates the mean within each cluster
+		CHECK_CUDA_CALL( cudaMemcpy(classMap, d_classMap, lines*sizeof(int), cudaMemcpyDeviceToHost) );
+
+		zeroIntArray(pointsPerClass,K);
+		zeroFloatMatriz(auxCentroids,K,samples);
+
+		for(i=0; i<lines; i++) 
+		{
+			vclass=classMap[i];
+			pointsPerClass[vclass-1] = pointsPerClass[vclass-1] +1;
+			for(j=0; j<samples; j++){
+				auxCentroids[(vclass-1)*samples+j] += data[i*samples+j];
+			}
+		}
+
+		CHECK_CUDA_CALL( cudaMemcpy(d_pointsPerClass, pointsPerClass, K*sizeof(int), cudaMemcpyHostToDevice) );
+		CHECK_CUDA_CALL( cudaMemcpy(d_auxCentroids, auxCentroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
 
 		third_step<<<numBlocks2, blockSize>>>(d_auxCentroids, d_pointsPerClass);
         CHECK_CUDA_LAST();
