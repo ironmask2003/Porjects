@@ -363,8 +363,10 @@ int main(int argc, char* argv[])
 		}
 
 		// Print fi classMap
-		for(i=0; i<lines; i++) {
-		 	printf("%d ", classMap[i]);
+		if (it == 9) {
+			for(i=0; i<lines; i++) {
+		 		printf("%d ", classMap[i]);
+			}
 		}
 		// printf("\n");
 

@@ -474,7 +474,7 @@ int main(int argc, char* argv[])
 
 	do{
 		it++;
-		printf("\nIteration %d", it);
+		printf("\nIteration %d\n", it);
 		
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
