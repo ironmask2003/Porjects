@@ -226,7 +226,8 @@ __constant__ int d_lines;
 
 // Kernel per il calcolo della distanza euclidea
 __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_classMap, int* d_changes){
-	int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+	// int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+	int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
     if (id < d_lines) {
         int vclass = 1;
@@ -247,7 +248,8 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
 }
 
 __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCentroids, int* d_classMap){
-    int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+    // int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+	int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
     if (id < d_lines){
         int vclass=d_classMap[id];
@@ -259,7 +261,8 @@ __global__ void second_step(float* d_data, int* d_pointsPerClass, float* d_auxCe
 }
 
 __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass){
-    int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+    // int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+	int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
     if (id < d_K){
         for(int j=0; j<d_samples; j++){
@@ -269,7 +272,8 @@ __global__ void third_step(float* d_auxCentroids, int* d_pointsPerClass){
 }
 
 __global__ void max(float* d_centroids, float* d_auxCentroids, float* d_maxDist){
-    int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+    // int id = blockIdx.x * blockDim.x * blockDim.y + threadIdx.x + threadIdx.y * blockDim.x;
+	int id = (blockIdx.x * blockDim.x) + threadIdx.x;
 
     if (id < d_K){
         float dist=d_euclideanDistance(&d_centroids[id*d_samples], &d_auxCentroids[id*d_samples], d_samples);
