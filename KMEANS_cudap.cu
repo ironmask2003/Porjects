@@ -251,8 +251,8 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
 	if (id < d_lines) {
 		int vclass = 1;
 		float minDist = FLT_MAX;
+		float dist = 0.0;
 		for (int j = 0; j < d_K; j++) {
-			float dist = 0.0;
 			dist = d_euclideanDistance(&d_data[id * d_samples], &shared_centroids[j * d_samples], d_samples);
 			if (dist < minDist) {
 				minDist = dist;
@@ -266,7 +266,7 @@ __global__ void assign_centroids(float* d_data, float* d_centroids, int* d_class
 	}
 
 	if(id == d_lines) {
-		printf("All lines checked\n");
+		printf("\nAll lines checked\n");
 	}
 }
 
@@ -470,7 +470,8 @@ int main(int argc, char* argv[])
 
 	do{
 		it++;
-	
+		printf("\nIteration %d", it);
+		
 		//1. Calculate the distance from each point to the centroid
 		//Assign each point to the nearest centroid.
         CHECK_CUDA_CALL( cudaMemset(d_changes, 0, sizeof(int)) );
