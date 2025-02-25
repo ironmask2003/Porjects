@@ -452,6 +452,7 @@ int main(int argc, char* argv[])
 		CHECK_CUDA_CALL( cudaMemset(d_pointsPerClass, 0, K*sizeof(int)) );
         CHECK_CUDA_CALL( cudaMemset(d_auxCentroids, 0, K*samples*sizeof(float)) );
 
+		CHECK_CUDA_CALL( cudaDeviceSynchronize() );
         assign_centroids<<<numBlocks, blockSize>>>(d_data, d_centroids, d_classMap, d_changes);
         CHECK_CUDA_LAST();
         // Syncronize the device
@@ -480,8 +481,6 @@ int main(int argc, char* argv[])
 		
 		sprintf(line,"\n[%d] Cluster changes: %d\tMax. centroid distance: %f", it, changes, maxDist);
 		outputMsg = strcat(outputMsg,line);
-
-        CHECK_CUDA_CALL( cudaDeviceSynchronize() );
 
 	} while((changes>minChanges) && (it<maxIterations) && (maxDist>maxThreshold));
 
