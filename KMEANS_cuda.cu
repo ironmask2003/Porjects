@@ -356,8 +356,10 @@ int main(int argc, char* argv[])
 	// Initial centrodis
 	srand(0);
 	int i;
-	for(i=0; i<K; i++) 
+	for(i=0; i<K; i++) {
 		centroidPos[i]=rand()%lines;
+		printf("Centroid %d: %d\n", i, centroidPos[i]);
+	}
 	
 	// Loading the array of initial centroids with the data from the array data
 	// The centroids are points stored in the data array.

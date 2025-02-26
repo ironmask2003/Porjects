@@ -284,8 +284,10 @@ int main(int argc, char* argv[])
 	// Initial centrodis with a randomic number
 	srand(0);
 	int i;
-	for(i=0; i<K; i++) 
+	for(i=0; i<K; i++) {
 		centroidPos[i]=rand()%lines;
+		printf("Centroid %d: %d\n", i, centroidPos[i]);
+	}
 	
 	// Loading the array of initial centroids with the data from the array data
 	// The centroids are points stored in the data array.
@@ -333,8 +335,6 @@ int main(int argc, char* argv[])
  *
  */
 
-	printf("lines %d\n", lines);
-
 	do{
 		it++;
 	
@@ -361,14 +361,6 @@ int main(int argc, char* argv[])
 			}
 			classMap[i]=class;
 		}
-
-		// Print fi classMap
-		if (it == 9) {
-			for(i=0; i<lines; i++) {
-		 		printf("%d ", classMap[i]);
-			}
-		}
-		// printf("\n");
 
 		// 2. Recalculates the centroids: calculates the mean within each cluster
 		zeroIntArray(pointsPerClass,K);
