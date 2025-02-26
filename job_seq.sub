@@ -1,12 +1,12 @@
 universe = vanilla
 
-executable = ./KMEANS_seq.out
+executable = ./KMEANS_seq
 
-arguments = test_files/input100D2.inp 20 5000 1 0.0001 out100D2seq.txt
+arguments = test_files/input100D2.inp 40 100 1 0.0001 output_files/cuda/output100D2.inp
 
-output = logs/out_seq.
-error = logs/err_seq.
-log = logs/seq_log.
+output = logs_seq/out_seq.
+error = logs_seq/err_seq.
+log = logs_seq/seq_log.
 
 request_cpus = 1
 
