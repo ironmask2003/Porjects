@@ -356,10 +356,8 @@ int main(int argc, char* argv[])
 	// Initial centrodis
 	srand(0);
 	int i;
-	for(i=0; i<K; i++) {
+	for(i=0; i<K; i++) 
 		centroidPos[i]=rand()%lines;
-		printf("Centroid %d: %d\n", i, centroidPos[i]);
-	}
 	
 	// Loading the array of initial centroids with the data from the array data
 	// The centroids are points stored in the data array.
@@ -439,6 +437,7 @@ int main(int argc, char* argv[])
     CHECK_CUDA_CALL( cudaMemcpy(d_centroids, centroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
     CHECK_CUDA_CALL( cudaMemcpy(d_pointsPerClass, pointsPerClass, K*sizeof(int), cudaMemcpyHostToDevice) );
     CHECK_CUDA_CALL( cudaMemcpy(d_auxCentroids, auxCentroids, K*samples*sizeof(float), cudaMemcpyHostToDevice) );
+	CHECK_CUDA_CALL( cudaMemcpy(d_changes, changes, sizeof(int), cudaMemcpyHostToDevice) );
 
     // Set of the grid and block dimensions
     dim3 blockSize(1024);
